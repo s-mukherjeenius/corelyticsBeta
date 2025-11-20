@@ -36,6 +36,23 @@ app.register_blueprint(api.bp)
 # regardless of whether the request succeeded or failed.
 app.teardown_appcontext(close_db)
 
+# --- Add this function to app.py ---
+
+@app.after_request
+def add_security_headers(response):
+    """
+    Tells the browser specifically NOT to cache HTML pages.
+    This prevents the 'Back Button' from showing sensitive data after logout.
+    """
+    # Only apply this to HTML pages (Dashboard, Settings, etc.)
+    # We let CSS/JS/Images be cached so the site stays fast.
+    if "text/html" in response.content_type:
+        response.headers["Cache-Control"] = "no-cache, no-store, must-revalidate"
+        response.headers["Pragma"] = "no-cache"
+        response.headers["Expires"] = "0"
+    return response
+
+
 # --- 8. Run the Application ---
 if __name__ == '__main__':
     # Keep debug=True for local, but never for production

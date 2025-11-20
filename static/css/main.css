@@ -1279,30 +1279,48 @@ body.no-scroll {
 
 /* 2. Fix Sidebar Internal Scrolling */
 .sidebar {
-    /* Ensure it uses Flexbox to manage height */
     display: flex;
     flex-direction: column;
-    height: 100vh; 
-    max-height: 100vh; /* Hard limit */
-    overflow: hidden;  /* Hide outer scrollbars */
+    
+    /* 1. The Magic Fix for Mobile Browsers */
+    height: 100vh;       /* Fallback for old browsers */
+    height: 100dvh;      /* "Dynamic" height: adapts when address bar appears/disappears */
+    
+    /* 2. Structure */
+    width: 260px;
+    overflow: hidden;    /* No double scrollbars */
+    z-index: 1050;
+    
+    /* 3. iPhone Home Bar Safety */
+    padding-bottom: env(safe-area-inset-bottom, 20px); 
 }
 
 /* Allow the middle links to scroll if the screen is short */
 .sidebar .nav-links {
-    flex-grow: 1;
-    overflow-y: auto; /* Enable scroll only for links */
-    min-height: 0;    /* Flexbox scrolling fix */
+    flex-grow: 1;          /* Takes up all available space */
+    overflow-y: auto;      /* Allows internal scrolling */
+    min-height: 0;         /* Critical Flexbox fix */
+    padding-bottom: 1rem;  /* Space before logout */
     
-    /* Hide Scrollbar for cleaner look */
-    -ms-overflow-style: none;  /* IE and Edge */
-    scrollbar-width: none;  /* Firefox */
+    /* Hide Scrollbar visually but keep functionality */
+    -ms-overflow-style: none;  
+    scrollbar-width: none;  
 }
+
 .sidebar .nav-links::-webkit-scrollbar {
-    display: none; /* Chrome, Safari, Opera */
+    display: none;
 }
 
 /* Ensure Logo and Logout stay pinned and don't shrink */
-.sidebar .logo-section,
+.sidebar .logo-section {
+    flex-shrink: 0;
+    padding-top: 1rem; /* Slight adjustment */
+}
+
 .sidebar .logout-section {
-    flex-shrink: 0; 
+    flex-shrink: 0;        /* Prevents being squashed */
+    margin-top: auto;      /* Pushes it to the bottom */
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 1.5rem 1.5rem; /* Comfortable touch target */
+    background: inherit;    /* Matches gradient */
 }

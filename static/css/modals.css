@@ -1,0 +1,120 @@
+/*
+ * =========================================
+ * CORELYTICS - MODAL STYLES
+ * =========================================
+ * This file contains styles for the *custom*
+ * page modals (e.g., Add Intake, Change Password).
+ *
+ * *** FIX: Renamed classes to avoid conflict with Bootstrap ***
+ */
+
+/* Main modal container */
+.page-modal {
+    display: none; /* Hidden by default */
+    position: fixed;
+    z-index: 2000; /* Above most content */
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0,0,0,0.5); /* Semi-transparent black background */
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 0.2s ease-in-out;
+    pointer-events: none;
+}
+
+.page-modal.show {
+    opacity: 1;
+    pointer-events: auto;
+    display: flex; /* Use flex to center */
+}
+
+/* Modal content box */
+.page-modal-content {
+    background-color: #fefefe;
+    margin: auto;
+    padding: 1.75rem; /* Consistent padding */
+    border-radius: 1rem;
+    width: 90%;
+    max-width: 500px;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    position: relative;
+    transform: translateY(-50px) scale(0.95); /* Animation start state */
+    transition: transform 0.2s ease-in-out;
+}
+
+.page-modal.show .page-modal-content {
+    transform: translateY(0) scale(1); /* Animation end state */
+}
+
+/* Modal close button */
+.page-modal-close {
+    font-size: 28px;
+    font-weight: bold;
+    position: absolute;
+    top: 10px;
+    right: 15px;
+    background: transparent;
+    color: #9ca3af; /* Gray */
+    padding: 0;
+    border: none;
+    cursor: pointer;
+    line-height: 1;
+    text-shadow: none;
+    transition: all 0.2s ease-in-out;
+}
+
+.page-modal-close:hover,
+.page-modal-close:focus {
+    text-decoration: none;
+    cursor: pointer;
+    color: #1f2937; /* Darker gray */
+    transform: scale(1.1);
+    outline: none;
+}
+
+/* --- Modal Footer "Close" Button --- */
+.modal-action-btn {
+    display: inline-block;
+    margin-top: 1.5rem; /* Spacing from content above */
+    width: 100%;        /* Full width on mobile looks better */
+    padding: 0.8rem 1.5rem;
+    
+    background-color: #ffffff;
+    color: #4b5563; /* Cool Gray Text */
+    border: 2px solid #e5e7eb; /* Light Gray Border */
+    border-radius: 0.75rem;
+    
+    font-family: 'Inter', sans-serif;
+    font-weight: 600;
+    font-size: 1rem;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s ease-in-out;
+}
+
+/* Hover State - Brand Interaction */
+.modal-action-btn:hover {
+    border-color: #6366f1; /* Brand Indigo */
+    color: #6366f1;
+    background-color: #f5f7ff; /* Very subtle indigo tint */
+    transform: translateY(-2px); /* Slight lift */
+    box-shadow: 0 4px 12px rgba(99, 102, 241, 0.15);
+}
+
+.modal-action-btn:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
+}
+
+/* Desktop Adjustment */
+@media (min-width: 768px) {
+    .modal-action-btn {
+        width: auto; /* Natural width on desktop */
+        min-width: 120px;
+        float: right; /* Align to right if desired */
+    }
+}

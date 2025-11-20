@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+
+{% block title %}History - Corelytics{% endblock title %}
+
+{% block page_title %}Meal History{% endblock page_title %}
+
+{% block content %}
+<div class="bg-white p-6 rounded-3xl shadow-md">
+    <h5 class="text-2xl font-bold text-gray-800 mb-4">All Meal Logs</h5>
+    
+    {% if meal_logs_by_date %}
+        <div class="space-y-3">
+            <div class="d-none d-md-flex text-sm text-gray-500 font-semibold mb-2 border-b pb-2">
+                <div class="w-1/2 md:w-3/4">Date</div>
+                <div class="w-1/2 md:w-1/4 text-end">Daily Total (kcal)</div>
+            </div>
+
+            {% for date, data in meal_logs_by_date.items() %}
+                <div class="d-flex justify-content-between align-items-center bg-gray-50 p-3 rounded-lg shadow-sm daily-summary-row" 
+                     data-bs-toggle="modal" 
+                     data-bs-target="#mealDetailModal"
+                     data-date="{{ date }}"
+                     data-meals='{{ data.meals | tojson }}'>
+                    <div class="font-medium text-gray-900">{{ date }}</div>
+                    <div class="text-indigo-600 font-semibold">{{ "%.0f"|format(data.total_calories) }}</div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <p class="text-gray-600 text-center">No meal logs found yet. Start logging your meals on the dashboard!</p>
+    {% endif %}
+</div>
+
+<div class="modal fade" id="mealDetailModal" tabindex="-1" aria-labelledby="mealDetailModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content rounded-3xl shadow-2xl border-0"> <div class="modal-header border-b-0 pb-0">
+                <h5 class="modal-title font-bold text-xl text-gray-800" id="mealDetailModalLabel">
+                    Meals for <span id="modalDate" class="text-indigo-600"></span>
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            
+            <div class="modal-body pt-4">
+                <div class="d-none d-md-flex text-sm text-gray-500 font-semibold mb-3 border-b pb-2">
+                    <div class="w-1/2">Meal & Description</div>
+                    <div class="w-1/4 text-center">Calories</div>
+                    <div class="w-1/4 text-center">Time</div>
+                </div>
+                <div id="mealList" class="space-y-3">
+                    </div>
+            </div>
+            
+            <div class="modal-footer border-t-0 pt-2 pb-4">
+                <button type="button" class="modal-action-btn" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock content %}
+
+
+{% block scripts_extra %}
+<script src="{{ url_for('static', filename='js/history.js') }}"></script>
+{% endblock scripts_extra %}

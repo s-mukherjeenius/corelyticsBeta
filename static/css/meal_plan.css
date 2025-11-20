@@ -1,0 +1,112 @@
+/*
+ * =========================================
+ * CORELYTICS - MEAL PLAN STYLES (Redesigned)
+ * =========================================
+ * This file contains styles to format the
+ * Markdown output from Gemini for the meal plan.
+ *
+ * This redesign aligns with the app's primary
+ * color palette (indigo/purple) and card-based UI.
+ */
+
+/* Targets the div where the meal plan is rendered */
+.meal-plan-content {
+    text-align: left;
+    color: #374151; /* Darker base text */
+}
+
+/* * Styles for Day headings (e.g., "### Day 1")
+ * This now matches the .welcome-header for consistency.
+*/
+.meal-plan-content h3 {
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: white;
+    background: linear-gradient(45deg, #6366f1, #8b5cf6);
+    padding: 1rem 1.5rem;
+    border-radius: 0.75rem; /* Matches card radius */
+    box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3);
+    margin-top: 2.5rem;
+    margin-bottom: 1.5rem;
+}
+
+/* Styles for meal lists (<ul>) */
+.meal-plan-content ul {
+    list-style: none;
+    padding-left: 0;
+    margin-bottom: 2rem; /* Space before the next day header */
+}
+
+/* * Styles for individual meal items (<li>)
+ * These are now styled as individual white cards.
+*/
+.meal-plan-content li {
+    background-color: #ffffff; /* Clean white card */
+    border: 1px solid #e2e8f0;
+    border-radius: 0.75rem; /* More rounded */
+    padding: 1.25rem;
+    margin-bottom: 1rem; /* Space between meal cards */
+    font-size: 1rem;
+    line-height: 1.6;
+    color: #374151;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+    transition: all 0.2s ease-in-out;
+}
+
+.meal-plan-content li:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 15px rgba(0, 0, 0, 0.08);
+    border-color: #818cf8; /* Primary light color on hover */
+}
+
+/* * Styling for bold text (e.g., "Breakfast:")
+ * This styles the meal type as a "pill" or "tag".
+*/
+.meal-plan-content li strong {
+    display: inline-block;
+    background-color: #e0e7ff; /* Light indigo background */
+    color: #4338ca; /* Dark indigo text */
+    padding: 0.25rem 0.75rem;
+    border-radius: 9999px; /* Pill shape */
+    font-weight: 600;
+    font-size: 0.85rem;
+    margin-right: 0.75rem;
+    margin-bottom: 0.5rem; /* Ensures space if it wraps on mobile */
+}
+
+/* General paragraph styling (e.g., Daily Totals) */
+.meal-plan-content p {
+    margin-bottom: 1rem;
+    font-size: 1.1rem;
+    font-weight: 600;
+    text-align: right; /* Align total to the right */
+    color: #374151;
+}
+
+/* Specifically style the Daily Total number */
+.meal-plan-content p strong {
+    color: #166534; /* Dark green for totals */
+    font-weight: 700;
+    font-size: 1.25rem;
+    margin-left: 0.5rem;
+}
+
+/* Responsive adjustments */
+@media (max-width: 767.98px) {
+    .meal-plan-content h3 {
+        font-size: 1.4rem;
+        padding: 0.75rem 1rem;
+    }
+
+    .meal-plan-content li {
+        padding: 1rem;
+        font-size: 0.95rem;
+    }
+
+    .meal-plan-content p {
+        font-size: 1rem;
+    }
+    .meal-plan-content p strong {
+        font-size: 1.1rem;
+    }
+}

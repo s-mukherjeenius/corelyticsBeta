@@ -1,0 +1,229 @@
+{% extends "base.html" %}
+
+{% block title %}Settings - Corelytics{% endblock title %}
+
+{% block page_title %}Settings{% endblock page_title %}
+
+{% block page_wrapper %}
+<div class="welcome-header mb-8">
+    <h1 class="flex-grow">
+        Settings
+    </h1>
+    
+    <div class="profile-pic-container position-relative" style="width: 80px; height: 80px; overflow: visible;">
+        
+        <img id="profilePicPreview" 
+             src="{{ session.profile_picture if session.profile_picture else 'https://placehold.co/80x80/6366f1/ffffff?text=User' }}" 
+             alt="Profile Picture"
+             class="rounded-circle shadow-sm"
+             style="width: 100%; height: 100%; object-fit: cover; cursor: pointer;"
+             onclick="document.getElementById('profilePicInput').click();" 
+             title="Click to change profile picture" />
+
+        <div class="position-absolute bottom-0 end-0 bg-white rounded-circle d-flex align-items-center justify-content-center shadow-sm"
+             style="width: 30px; height: 30px; cursor: pointer; border: 1px solid #e5e7eb; z-index: 50; transform: translate(15%, 15%);"
+             onclick="document.getElementById('profilePicInput').click();">
+            <i class="fas fa-camera text-primary" style="font-size: 14px;"></i>
+        </div>
+
+        <input type="file" id="profilePicInput" name="profile_pic" accept="image/*" class="d-none" form="settingsForm">
+    </div>
+</div>
+
+{% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+        <div class="flash-messages-container mb-4">
+        {% for category, message in messages %}
+            <div class="flash-message flash-{{ category }}">{{ message }}</div>
+        {% endfor %}
+        </div>
+    {% endif %}
+{% endwith %}
+
+<div class="container py-4" style="margin-top: -1.5rem;"> 
+    <form id="settingsForm">
+        <div class="settings-grid">
+            <div class="settings-card">
+                <div class="card-header">
+                    <div class="card-icon"><i class="fas fa-user"></i></div>
+                    <h5>Profile Information</h5>
+                </div>
+
+                <div class="mb-3">
+                    <label for="fullName" class="form-label">Full Name:</label>
+                    <input type="text" id="fullName" name="full_name" class="form-control" value="{{ full_name | default('', true) }}">
+                </div>
+
+                <div class="mb-3">
+                    <label for="email" class="form-label">Email Address:</label>
+                    <input type="email" id="email" name="email" class="form-control" value="{{ email | default('', true) }}" readonly disabled>
+                </div>
+                
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label for="dob" class="form-label">Date of Birth:</label>
+                        <input type="date" id="dob" name="dob" class="form-control" value="{{ dob_formatted | default('', true) }}">
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label for="gender" class="form-label">Gender:</label>
+                        <select id="gender" name="gender" class="form-select">
+                            <option value="Male" {% if gender == 'Male' %}selected{% endif %}>Male</option>
+                            <option value="Female" {% if gender == 'Female' %}selected{% endif %}>Female</option>
+                            <option value="Other" {% if gender == 'Other' %}selected{% endif %}>Other</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <button type="submit" class="btn btn-primary w-100" id="saveProfileBtn">
+                    <span class="btn-text">Save Profile</span>
+                    <span class="btn-spinner spinner-border spinner-border-sm" role="status" aria-hidden="true" style="display: none;"></span>
+                </button>
+            </div>
+            
+            <div class="settings-card">
+                <div class="card-header">
+                    <div class="card-icon"><i class="fas fa-heartbeat"></i></div>
+                    <h5>Health & Fitness Goals</h5>
+                </div>
+                
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label for="currentWeight" class="form-label">Current Weight (kg):</label>
+                        <input type="number" step="0.1" id="currentWeight" name="current_weight" class="form-control" value="{{ '%.1f' | format(current_weight | default(0.0, true)) }}">
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label for="height" class="form-label">Height (cm):</label>
+                        <input type="number" step="0.1" id="height" name="height" class="form-control" value="{{ '%.1f' | format(height | default(0.0, true)) }}">
+                    </div>
+                </div>
+                
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label for="targetWeight" class="form-label">Target Weight (kg):</label>
+                        <input type="number" step="0.1" id="targetWeight" name="target_weight" class="form-control" value="{{ '%.1f' | format(target_weight | default(0.0, true)) }}">
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label for="targetDate" class="form-label">Target Date:</label>
+                        <input type="date" id="targetDate" name="target_date" class="form-control" value="{{ target_date_formatted | default('', true) }}">
+                    </div>
+                </div>
+                
+                <div class="mb-3">
+                    <label for="activityLevel" class="form-label">Activity Level:</label>
+                    <select id="activityLevel" name="activity_level" class="form-select">
+                        <option value="sedentary" {% if activity_level == 'sedentary' %}selected{% endif %}>Sedentary</option>
+                        <option value="light" {% if activity_level == 'light' %}selected{% endif %}>Lightly Active</option>
+                        <option value="moderate" {% if activity_level == 'moderate' %}selected{% endif %}>Moderately Active</option>
+                        <option value="active" {% if activity_level == 'active' %}selected{% endif %}>Active</option>
+                        <option value="very_active" {% if activity_level == 'very_active' %}selected{% endif %}>Very Active</option>
+                    </select>
+                </div>
+                
+                <button type="submit" class="btn btn-primary w-100" id="saveGoalsBtn">
+                    <span class="btn-text">Save Goals</span>
+                    <span class="btn-spinner spinner-border spinner-border-sm" role="status" aria-hidden="true" style="display: none;"></span>
+                </button>
+            </div>
+        </div>
+    </form>
+    
+    <div class="settings-grid" style="margin-top: 1.5rem;">
+        <div class="settings-card">
+            <div class="card-header">
+                <div class="card-icon"><i class="fas fa-shield-alt"></i></div>
+                <h5>Account Security</h5>
+            </div>
+            
+            <div class="security-actions">
+                <button class="btn btn-primary" id="changePasswordBtn" type="button" {% if signup_method != 'manual' %}disabled title="Password cannot be changed for Google accounts"{% endif %}>
+                    <i class="fas fa-key me-2"></i>Change Password
+                </button>
+                <button class="btn btn-secondary" id="toggle2FABtn" type="button">
+                    <span class="btn-text">
+                        {% if two_factor_enabled %}<i class="fas fa-mobile-alt me-2"></i>Disable 2FA{% else %}<i class="fas fa-mobile-alt me-2"></i>Enable 2FA{% endif %}
+                    </span>
+                    <span class="btn-spinner spinner-border spinner-border-sm" role="status" aria-hidden="true" style="display: none;"></span>
+                </button>
+            </div>
+            
+            <h6 class="mt-4 mb-3 fw-semibold">Recent Login Activity (Placeholder)</h6>
+            <ul class="activity-list">
+                <li class="activity-item">
+                    <div class="activity-details">
+                        <div class="activity-icon"><i class="fas fa-location-dot"></i></div>
+                        <div class="activity-text">Logged in</div>
+                    </div>
+                    <div class="activity-time">Just now</div>
+                </li>
+            </ul>
+        </div>
+        
+        <div class="settings-card">
+            <div class="card-header">
+                <div class="card-icon"><i class="fas fa-database"></i></div>
+                <h5>Data & Privacy</h5>
+            </div>
+            
+            <p class="mb-4">Manage your data and privacy settings. You can export your data or permanently delete your account.</p>
+            
+            <div class="privacy-actions">
+                <button class="btn btn-secondary" id="exportDataBtn" type="button">
+                    <span class="btn-text"><i class="fas fa-file-export me-2"></i>Export My Data</span>
+                    <span class="btn-spinner spinner-border spinner-border-sm" role="status" aria-hidden="true" style="display: none;"></span>
+                </button>
+                <button class="btn btn-danger" id="deleteAccountBtn" type="button">
+                    <i class="fas fa-user-slash me-2"></i>Delete Account
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="changePasswordModal" class="page-modal">
+    <div class="page-modal-content">
+        <span class="page-modal-close" data-modal-id="changePasswordModal">&times;</span>
+        <h2 class="text-2xl font-bold mb-4">Change Password</h2>
+        <form id="changePasswordForm">
+            <div class="mb-3">
+                <label for="currentPassword" class="form-label">Current Password:</label>
+                <input type="password" id="currentPassword" name="current_password" class="form-control" required>
+            </div>
+            <div class="mb-3">
+                <label for="newPassword" class="form-label">New Password:</label>
+                <input type="password" id="newPassword" name="new_password" class="form-control" required>
+            </div>
+            <div class="mb-3">
+                <label for="confirmNewPassword" class="form-label">Confirm New Password:</label>
+                <input type="password" id="confirmNewPassword" name="confirm_new_password" class="form-control" required>
+            </div>
+            <button type="submit" class="btn btn-primary w-full mt-4" id="submitChangePasswordBtn">
+                <span class="btn-text">Change Password</span>
+                <span class="btn-spinner spinner-border spinner-border-sm" role="status" aria-hidden="true" style="display: none;"></span>
+            </button>
+        </form>
+    </div>
+</div>
+
+<div id="deleteAccountConfirmModal" class="page-modal">
+    <div class="page-modal-content">
+        <span class="page-modal-close" data-modal-id="deleteAccountConfirmModal">&times;</span>
+        <h2 class="text-2xl font-bold mb-4 text-red-600">Delete Account</h2>
+        <p class="text-gray-700 mb-4">Are you sure you want to delete your account? This action is permanent and cannot be undone.</p>
+        <div class="mb-3" {% if signup_method != 'manual' %}style="display:none;"{% endif %}>
+            <label for="deletePasswordConfirm" class="form-label">Enter your password to confirm:</label>
+            <input type="password" id="deletePasswordConfirm" name="password_confirm" class="form-control">
+        </div>
+        <div class="flex justify-end gap-3 mt-4">
+            <button type="button" class="btn btn-secondary" data-modal-id="deleteAccountConfirmModal">Cancel</button>
+            <button type="button" class="btn btn-danger" id="confirmDeleteAccountBtn">
+                <span class="btn-text">Delete Account</span>
+                <span class="btn-spinner spinner-border spinner-border-sm" role="status" aria-hidden="true" style="display: none;"></span>
+            </button>
+        </div>
+    </div>
+</div>
+{% endblock page_wrapper %}
+
+{% block scripts_extra %}
+<script src="{{ url_for('static', filename='js/settings.js') }}"></script>
+{% endblock scripts_extra %}

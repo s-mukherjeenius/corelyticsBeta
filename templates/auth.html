@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="referrer" content="origin-when-cross-origin">
+    <title>CORELYTICS - Authentication</title>
+    <link rel="shortcut icon" href="{{ url_for('static', filename='logo.png') }}">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+
+    <style>
+        /* --- YouTube Background Styles --- */
+        .video-background {
+            position: fixed; top: 0; right: 0; bottom: 0; left: 0;
+            z-index: -2; overflow: hidden; pointer-events: none;
+        }
+        .video-background iframe {
+            position: absolute; top: 50%; left: 50%;
+            width: 100vw; height: 56.25vw; min-height: 100vh; min-width: 177.77vh;
+            transform: translate(-50%, -50%) scale(1.35); pointer-events: none;
+        }
+        .video-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            z-index: -1; background: rgba(0, 0, 0, 0.4);
+        }
+        /* Utility to hide forms */
+        .hidden-form { display: none !important; }
+    </style>
+</head>
+<body>
+
+    <div class="video-background">
+        <div id="youtube-player"></div>
+    </div>
+    <div class="video-overlay"></div>
+    
+    <div id="toastMessageBox" class="toast-message-box"></div>
+
+    <div class="site-wrapper">
+        <div class="branding-header" style="background-color: rgba(255, 255, 255, 0.80); border-radius: 20px;">
+            <img src="{{ url_for('static', filename='corelytics_logo.png') }}" class="logo-img" alt="Corelytics Logo">
+        </div><br><br>
+
+        <div id="login-container" class="main-content {% if mode == 'signup' %}hidden-form{% endif %}">
+            <div class="hero-title-container">
+                <h1>Target. Transform. Thrive.</h1>
+                <p>Unlock your full potential with AI POWERED insights and goal tracking.</p>
+            </div>
+
+            <div class="form-card">
+                <form class="flex flex-col" action="{{ url_for('auth.handle_login') }}" method="POST">
+                    <div class="mb-4">
+                        <label for="loginEmail" class="form-label">Email address</label>
+                        <input type="email" class="form-control" id="loginEmail" name="email" placeholder="Enter your email" required>
+                    </div>
+                    <div class="mb-4">
+                        <label for="loginPassword" class="form-label">Password</label>
+                        <input type="password" class="form-control" id="loginPassword" name="password" placeholder="Enter your password" required>
+                    </div>
+                    <div class="flex justify-center gap-4 mb-4">
+                        <button type="submit" class="btn-gradient btn-login">Login</button>
+                        <button type="button" class="btn-gradient btn-signup" onclick="switchView('signup')">Signup</button>
+                    </div>
+                </form>
+
+                <br>
+                <div class="g_id_signin" data-type="standard" data-size="large" data-logo_alignment="left" data-text="continue_with"></div>
+                <a class="forgot-password-link" href="#">Forgot Password?</a>
+            </div>
+        </div>
+
+        <div id="signup-container" class="main-content {% if mode != 'signup' %}hidden-form{% endif %}">
+            
+            <div class="hero-title-container">
+                <h1>Begin Your Transformation.</h1>
+                <p>Create your account today to start tracking your goals and unlocking AI insights.</p>
+            </div>
+
+            <div class="form-card">
+                <form class="flex flex-col" method="POST" action="{{ url_for('auth.handle_signup') }}">
+                    <div class="mb-4">
+                        <label for="signupName" class="form-label">Full Name</label>
+                        <input type="text" class="form-control" id="signupName" name="full_name" placeholder="Enter your full name" required/>
+                    </div>
+                    <div class="mb-4">
+                        <label for="signupEmail" class="form-label">Email Address</label>
+                        <input type="email" class="form-control" id="signupEmail" name="email" placeholder="Enter your email" required/>
+                    </div>
+                    <div class="mb-4">
+                        <label for="signupPassword" class="form-label">Password</label>
+                        <input type="password" class="form-control" id="signupPassword" name="password" placeholder="Create a password" required/>
+                    </div>
+                    <div class="mb-4">
+                        <label for="confirmPassword" class="form-label">Confirm Password</label>
+                        <input type="password" class="form-control" id="confirmPassword" name="confirm_password" placeholder="Confirm your password" required/>
+                    </div>
+                    <div class="flex justify-center gap-4 mb-4">
+                        <button type="submit" class="btn-gradient btn-signup">Signup</button>
+                        <button type="button" class="btn-gradient btn-login" onclick="switchView('login')">Back to Login</button>
+                    </div>
+                </form>
+
+                <br>
+                <div class="g_id_signin" data-type="standard" data-size="large" data-logo_alignment="left" data-text="signup_with"></div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="footer mt-auto">
+        <p>© Corelytics Private Limited</p>
+    </footer>
+
+    <div id="g_id_onload"
+         data-client_id="{{ google_client_id }}"
+         data-context="signin"
+         data-ux_mode="popup"
+         data-callback="handleCredentialResponse"
+         data-auto_prompt="false"
+         data-use_fedcm_for_prompt="false"> 
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="{{ url_for('static', filename='js/auth.js') }}"></script>
+
+    <script>
+        // --- 1. TOAST NOTIFICATION LOGIC ---
+        // Defined here so auth pages can use it without loading the full main.js
+        window.showToast = function(message, type = 'info') {
+            const toastMessageBox = document.getElementById('toastMessageBox');
+            if (!toastMessageBox) return;
+
+            toastMessageBox.textContent = message;
+            toastMessageBox.classList.remove('success', 'error', 'info', 'show');
+            
+            // Add type class
+            if (type === 'success' || type === 'danger') {
+                 toastMessageBox.classList.add(type === 'success' ? 'success' : 'error');
+            } else {
+                 toastMessageBox.classList.add('info');
+            }
+            
+            // Show
+            toastMessageBox.classList.add('show');
+
+            // Clear existing timeout
+            if (toastMessageBox.timeoutId) clearTimeout(toastMessageBox.timeoutId);
+
+            // Hide after 3 seconds
+            toastMessageBox.timeoutId = setTimeout(() => {
+                toastMessageBox.classList.remove('show');
+                setTimeout(() => {
+                    if (!toastMessageBox.classList.contains('show')) {
+                        toastMessageBox.textContent = '';
+                    }
+                }, 400);
+            }, 3000);
+        };
+    </script>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <script>
+                    document.addEventListener('DOMContentLoaded', function() {
+                        // Map Flask categories to CSS classes if needed, 
+                        // but showToast handles 'success' and 'danger' (mapped to error).
+                        // Flask default 'info' maps to 'info'.
+                        showToast("{{ message }}", "{{ category }}");
+                    });
+                </script>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+
+    <script>
+        // --- 2. VIEW SWITCHER LOGIC ---
+        function switchView(viewName) {
+            const loginContainer = document.getElementById('login-container');
+            const signupContainer = document.getElementById('signup-container');
+
+            if (viewName === 'signup') {
+                loginContainer.classList.add('hidden-form');
+                signupContainer.classList.remove('hidden-form');
+                window.history.pushState({path: '/signup'}, '', '/signup');
+            } else {
+                signupContainer.classList.add('hidden-form');
+                loginContainer.classList.remove('hidden-form');
+                window.history.pushState({path: '/'}, '', '/');
+            }
+        }
+
+        window.onpopstate = function(event) {
+            if (window.location.pathname === '/signup') {
+                switchView('signup');
+            } else {
+                switchView('login');
+            }
+        };
+
+        // --- 3. YOUTUBE PLAYER LOGIC ---
+        var tag = document.createElement('script');
+        tag.src = "https://www.youtube.com/iframe_api";
+        var firstScriptTag = document.getElementsByTagName('script')[0];
+        firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+
+        var player;
+        function onYouTubeIframeAPIReady() {
+            player = new YT.Player('youtube-player', {
+                videoId: 'Os-v8F0yX1o',
+                playerVars: {
+                    'autoplay': 1, 'controls': 0, 'mute': 1, 'showinfo': 0,
+                    'modestbranding': 1, 'rel': 0, 'playsinline': 1, 'fs': 0,
+                    'iv_load_policy': 3, 'start': 0, 'end': 120
+                },
+                events: {
+                    'onReady': onPlayerReady,
+                    'onStateChange': onPlayerStateChange
+                }
+            });
+        }
+        function onPlayerReady(event) { event.target.mute(); event.target.playVideo(); }
+        function onPlayerStateChange(event) {
+            if (event.data === YT.PlayerState.ENDED) { player.seekTo(0); player.playVideo(); }
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,151 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - Corelytics{% endblock title %}
+
+{% block page_title %}
+    Welcome, {{ full_name }}!
+    {% if days_left_to_target is not none %}
+        <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-purple-200 text-purple-800 shadow-sm ms-3">
+            {% if days_left_to_target > 0 %}
+                {{ days_left_to_target }} days to target
+            {% else %}
+                0 days to target
+            {% endif %}
+        </span>
+    {% endif %}
+{% endblock page_title %}
+
+{% block content %}
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mb-8">
+    <div class="metric-card">
+        <i class="fa-solid fa-weight-hanging icon"></i>
+        <div class="title">Current Weight</div>
+        <div class="value">
+            {% if current_weight %}{{ "%.1f" | format(current_weight) }}<span class="unit">kg</span>{% else %}N/A{% endif %}
+        </div>
+    </div>
+
+    <div class="metric-card">
+        <i class="fa-solid fa-users icon"></i>
+        <div class="title">Daily Calorie Consumed</div>
+        <div class="value" id="dailyCalorieBucket">{{ "%.1f" | format(total_calories_consumed) }}<span class="unit">Cal</span></div>
+    </div>
+
+    <div class="metric-card">
+        <i class="fa-solid fa-fire icon"></i>
+        <div class="title">Estimated BMR</div>
+        <div class="value">
+            {% if bmr %}{{ bmr }}<span class="unit">kcal</span>{% else %}N/A{% endif %}
+        </div>
+    </div>
+
+    <div class="metric-card">
+        <i class="fa-solid fa-bullseye icon"></i>
+        <div class="title">Target Weight</div>
+        <div class="value">
+            {% if target_weight %}{{ "%.1f" | format(target_weight) }}<span class="unit">kg</span>{% else %}N/A{% endif %}
+        </div>
+    </div>
+</div>
+
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+    <div class="calorie-budget-card">
+        <div class="flex justify-between items-center mb-4">
+            <h5 class="flex items-center">
+                <i class="fa-solid fa-mug-hot text-green-600 mr-3 text-3xl"></i> Daily Calorie Budget
+            </h5>
+            <button class="btn-add-intake" id="addIntakeBtn">Add Intake</button>
+        </div>
+        <p class="budget-summary">
+            Your estimated daily calorie budget:
+            <strong class="text-green-700">{{ (daily_calorie_budget) | round if daily_calorie_budget else 'N/A' }} Calories</strong>
+        </p>
+        <div id="mealLogsContainer" class="meal-logs-container">
+            <ul class="list-group list-group-flush mt-4" id="mealLogsList">
+                {% if daily_intake_logs %}
+                    {% for log in daily_intake_logs %}
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <span>
+                                <b>{{ log.meal_type }}:</b> {{ log.meal_description }}
+                                <span class="text-muted text-sm">({{ log.formatted_log_time }})</span>
+                            </span>
+                            <span class="badge">{{ "%.0f" | format(log.estimated_calories) }} Cal</span>
+                        </li>
+                    {% endfor %}
+                {% else %}
+                    <li class="list-group-item text-center text-gray-500" id="noMealsMessage">No meals logged yet today!</li>
+                {% endif %}
+                <li class="list-group-item d-flex justify-content-between align-items-center text-dark font-weight-bold">
+                    Total Consumed Today <span class="badge bg-primary rounded-pill" id="totalConsumedToday">{{ "%.1f" | format(total_calories_consumed) }} Cal</span>
+                </li>
+            </ul>
+        </div>
+        <button class="btn-toggle-list" id="toggleMealLogsBtn">
+            View All <i class="fas fa-chevron-down ml-2"></i>
+        </button>
+    </div>
+
+    <div class="calorie-budget-card flex flex-col justify-center items-center">
+        <div id="piechart_3d" 
+             style="width: 100%; height: 300px;"
+             data-bmr="{{ bmr | default(0) }}"
+             data-budget="{{ daily_calorie_budget | default(0) }}"
+             data-consumed="{{ total_calories_consumed | default(0) }}">
+        </div>
+    </div>
+</div>
+
+<div class="bg-white p-6 rounded-3xl shadow-md">
+    <h5 class="text-2xl font-bold text-gray-800 mb-4">Recent Activity</h5>
+    <ul class="list-group list-group-flush">
+        <li class="list-group-item d-flex justify-content-between align-items-center py-3">
+            <i class="fa-solid fa-location-dot text-indigo-500 mr-2"></i> Logged in
+            <span class="text-gray-500 text-sm">Just now</span>
+        </li>
+        </ul>
+</div>
+
+<div id="addMealModal" class="page-modal">
+    <div class="page-modal-content">
+        <span class="page-modal-close" id="closeModalBtn">&times;</span>
+        <h2 class="text-2xl font-bold mb-4">Log Your Meal</h2>
+
+        <div class="mb-3">
+            <label for="mealTypeSelect" class="form-label">Meal Type:</label>
+            <select id="mealTypeSelect" class="form-select mb-3">
+                <option value="Breakfast">Breakfast</option>
+                <option value="Lunch">Lunch</option>
+                <option value="Dinner">Dinner</option>
+                <option value="Snack">Snack</option>
+                <option value="Other Meal">Other Meal</option>
+            </select>
+        </div>
+
+        <div class="mb-3">
+            <label for="portionSizeSelect" class="form-label">Portion Size:</label>
+            <select id="portionSizeSelect" class="form-select mb-3">
+                <option value="Small">Small</option>
+                <option value="Medium" selected>Medium</option>
+                <option value="Large">Large</option>
+                <option value="Extra Large">Extra Large</option>
+            </select>
+        </div>
+
+        <div class="mb-3">
+            <label for="mealDescriptionInput" class="form-label">What did you eat?</label>
+            <input type="text" id="mealDescriptionInput" class="form-control" placeholder="e.g., Chicken breast with rice">
+        </div>
+
+        <button class="btn btn-primary w-full mt-4" id="submitMealBtn">
+            <span id="submitMealText">Add Meal</span>
+            <span id="submitMealSpinner" class="spinner-border spinner-border-sm" role="status" aria-hidden="true" style="display: none;"></span>
+        </button>
+    </div>
+</div>
+{% endblock content %}
+
+
+{% block scripts_extra %}
+<script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+<script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+{% endblock scripts_extra %}

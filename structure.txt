@@ -1,0 +1,30 @@
+|-- app.py           # (New, smaller: Runs the app)
+|-- db.py            # (New: Handles DB connection)
+|-- utils.py         # (New: Helper functions like BMR calc)
+|-- gemini_client.py # (New: All Gemini AI logic)
+|-- requirements.txt # (A list of all libraries your project needs)
+|
+|-- /blueprints/
+|   |-- auth.py      # (Routes for login, signup, logout)
+|   |-- main.py      # (Routes for dashboard, history, settings)
+|   |-- api.py       # (Routes for logging meals, generating plans)
+|
+|-- /static/
+|   |-- /css/
+|   |   |-- main.css     # (Your consolidated, refined CSS)
+|   |
+|   |-- /js/
+|   |   |-- main.js      # (Sidebar toggle logic)
+|   |   |-- auth.js      # (Google Sign-In logic)
+|   |   |-- dashboard.js # (Dashboard modal/chart logic)
+|   |   |-- logic.js     # (Chatbot/Speech API logic)
+|   |   |-- analytics.js # (Analytics chart logic)
+|   |   |-- settings.js  # (Settings page logic)
+|   |   |-- ... (and a few others)
+|
+|-- /templates/
+|   |-- base.html    # (New: The master layout file)
+|   |-- index.html   # (Refined)
+|   |-- signup.html  # (Refined)
+|   |-- dashboard.html # (Refined, now much smaller)
+|   |-- ... (all other templates, now much smaller)

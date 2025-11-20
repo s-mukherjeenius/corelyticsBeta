@@ -1,0 +1,132 @@
+{% extends "base.html" %}
+
+{% block title %}Help & Support - Corelytics{% endblock title %}
+
+{% block page_title %}Help Center{% endblock page_title %}
+
+{% block content %}
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+    
+    <div class="lg:col-span-2 flex flex-col gap-6">
+        
+        <div class="bg-white p-6 rounded-3xl shadow-md">
+            <h5 class="text-2xl font-bold text-gray-800 mb-2">
+                <i class="fas fa-question-circle text-indigo-500 mr-2"></i> Frequently Asked Questions
+            </h5>
+            <p class="text-gray-500 mb-6">Common questions about using Corelytics.</p>
+
+            <div class="accordion" id="helpAccordion">
+                
+                <div class="accordion-item border-0 mb-3 rounded-xl overflow-hidden shadow-sm">
+                    <h2 class="accordion-header">
+                        <button class="accordion-button font-semibold text-gray-700 bg-gray-50 collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq1">
+                            How is my daily calorie budget calculated?
+                        </button>
+                    </h2>
+                    <div id="faq1" class="accordion-collapse collapse" data-bs-parent="#helpAccordion">
+                        <div class="accordion-body text-gray-600 bg-white">
+                            Your budget is calculated using the <strong>Harris-Benedict equation</strong> based on your height, weight, age, and gender to determine your BMR (Basal Metabolic Rate). We then adjust this based on your selected activity level and your goal (weight loss, gain, or maintenance).
+                        </div>
+                    </div>
+                </div>
+
+                <div class="accordion-item border-0 mb-3 rounded-xl overflow-hidden shadow-sm">
+                    <h2 class="accordion-header">
+                        <button class="accordion-button font-semibold text-gray-700 bg-gray-50 collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq2">
+                            How do I talk to the Logic AI?
+                        </button>
+                    </h2>
+                    <div id="faq2" class="accordion-collapse collapse" data-bs-parent="#helpAccordion">
+                        <div class="accordion-body text-gray-600 bg-white">
+                            Navigate to the <strong>"Logic"</strong> tab in the sidebar. You can type questions like "How many calories in a banana?" or "Suggest a healthy dinner." You can also use the microphone icon to speak directly to Logic!
+                        </div>
+                    </div>
+                </div>
+
+                <div class="accordion-item border-0 mb-3 rounded-xl overflow-hidden shadow-sm">
+                    <h2 class="accordion-header">
+                        <button class="accordion-button font-semibold text-gray-700 bg-gray-50 collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq3">
+                            Can I export my health data?
+                        </button>
+                    </h2>
+                    <div id="faq3" class="accordion-collapse collapse" data-bs-parent="#helpAccordion">
+                        <div class="accordion-body text-gray-600 bg-white">
+                            Yes! Go to the <strong>Settings</strong> page. Scroll down to the "Data Management" section and click the "Export Data" button. This will download a JSON file containing your profile and meal history.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="accordion-item border-0 mb-3 rounded-xl overflow-hidden shadow-sm">
+                    <h2 class="accordion-header">
+                        <button class="accordion-button font-semibold text-gray-700 bg-gray-50 collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq4">
+                            How do I change my password?
+                        </button>
+                    </h2>
+                    <div id="faq4" class="accordion-collapse collapse" data-bs-parent="#helpAccordion">
+                        <div class="accordion-body text-gray-600 bg-white">
+                            If you signed up via email, you can change your password in the <strong>Settings</strong> tab under "Security". Note that Google Sign-In users cannot change their password here as it is managed by Google.
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="bg-white p-6 rounded-3xl shadow-md">
+             <h5 class="text-xl font-bold text-gray-800 mb-4">
+                <i class="fas fa-lightbulb text-yellow-500 mr-2"></i> Pro Tips
+            </h5>
+            <ul class="space-y-3">
+                <li class="flex items-start">
+                    <i class="fas fa-check-circle text-green-500 mt-1 mr-3"></i>
+                    <span class="text-gray-600">Use specific descriptions when logging meals (e.g., "Grilled chicken breast 200g" instead of just "Chicken").</span>
+                </li>
+                <li class="flex items-start">
+                    <i class="fas fa-check-circle text-green-500 mt-1 mr-3"></i>
+                    <span class="text-gray-600">Update your current weight in Settings weekly to keep your BMR accurate.</span>
+                </li>
+                <li class="flex items-start">
+                    <i class="fas fa-check-circle text-green-500 mt-1 mr-3"></i>
+                    <span class="text-gray-600">Enable "Continuous Listening" in the Logic chat for a hands-free experience while cooking!</span>
+                </li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="lg:col-span-1 flex flex-col gap-6">
+        
+        <div class="bg-gradient-to-br from-indigo-600 to-purple-700 rounded-3xl shadow-lg p-6 text-white relative overflow-hidden">
+            <div class="absolute top-0 right-0 -mr-4 -mt-4 w-24 h-24 rounded-full bg-white opacity-10"></div>
+            
+            <h5 class="text-2xl font-bold mb-2">Need more help?</h5>
+            <p class="text-indigo-100 mb-6">Our support team is available 24/7 to assist you with any issues.</p>
+            
+            <div class="flex flex-col gap-3">
+                <a href="mailto:support@corelytics.com" class="bg-white text-indigo-600 font-bold py-3 px-4 rounded-xl text-center shadow hover:bg-indigo-50 transition-colors">
+                    <i class="fas fa-envelope mr-2"></i> Email Support
+                </a>
+                <button class="bg-indigo-800 bg-opacity-50 text-white font-bold py-3 px-4 rounded-xl border border-indigo-400 hover:bg-opacity-70 transition-colors">
+                    <i class="fas fa-phone mr-2"></i> 1-800-CORE-HELP
+                </button>
+            </div>
+        </div>
+
+        <div class="bg-white p-6 rounded-3xl shadow-md">
+            <h5 class="font-bold text-gray-800 mb-4">System Status</h5>
+            <div class="flex items-center justify-between mb-3">
+                <span class="text-gray-600">Database</span>
+                <span class="text-xs font-bold px-2 py-1 rounded bg-green-100 text-green-700">Operational</span>
+            </div>
+            <div class="flex items-center justify-between mb-3">
+                <span class="text-gray-600">AI Engine (Gemini)</span>
+                <span class="text-xs font-bold px-2 py-1 rounded bg-green-100 text-green-700">Online</span>
+            </div>
+            <div class="flex items-center justify-between">
+                <span class="text-gray-600">App Version</span>
+                <span class="text-xs font-bold text-gray-400">v1.2.0</span>
+            </div>
+        </div>
+
+    </div>
+</div>
+{% endblock content %}

@@ -1,0 +1,1219 @@
+/*
+ * Consolidated styles.css
+ * This file combines styles from the previous "Merged CSS" and signup.html's inline CSS.
+ * Conflicts have been resolved, generally prioritizing signup.html's specific refinements
+ * for form elements and overall page centering for landing pages.
+ *
+ * FIX: Removed padding from body to prevent gap below footer.
+ * FIX: Improved mobile styling for the dashboard's .welcome-header.
+ * FIX: Enhanced mobile styling for the top .branding-header (Corelytics logo/text).
+ * FIX: Adjusted padding for .main-content-area and .container-fluid on mobile for better full-width appearance.
+ * FIX: Removed border-radius from the mobile navbar on mobile views for a full-width look.
+ */
+
+/* Base Body Styles - Combining properties, prioritizing centered layout for landing pages */
+body {
+    font-family: 'Inter', sans-serif;
+    background-color: #f0f4f8; /* Consistent dashboard background & fallback for video */
+    display: flex;
+    justify-content: center; /* Center content horizontally */
+    align-items: center; /* Center content vertically */
+    min-height: 100vh; /* Ensure full viewport height */
+    margin: 0;
+    overflow-x: hidden; /* Prevent horizontal scroll, especially for video backgrounds */
+    /* REMOVED: padding: 1rem; - This was causing the gap below the footer */
+    box-sizing: border-box; /* Include padding in element's total width and height */
+    flex-direction: column; /* Stack children vertically */
+    position: relative; /* For overlay and video positioning */
+}
+
+/* Video Backgrounds - Identical in both, keeping one set */
+#bgVideo,
+#bgVideoMobile {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover; /* Cover entire screen without distortion */
+    z-index: 5; /* Behind content but above body background */
+}
+
+/* Hide desktop video on mobile - Identical in both, keeping one set */
+.desktop-only-video {
+    display: block;
+}
+
+.mobile-only-video {
+    display: none;
+}
+
+@media (max-width: 767.98px) {
+    /* Bootstrap's md breakpoint */
+    .desktop-only-video {
+        display: none;
+    }
+
+    .mobile-only-video {
+        display: block;
+    }
+}
+
+/* Video Overlay - Darker and more prominent - Identical in both, keeping one set */
+.video-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(30, 41, 59, 0.6); /* Darker, slightly blue-grey overlay */
+    z-index: 10; /* Above videos, below content */
+}
+
+/* Main Site Wrapper - Holds all content. Signup.html added centering for its direct children. */
+.site-wrapper {
+    position: relative;
+    z-index: 20; /* Above overlay and videos */
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1; /* Allows content to push footer down */
+    max-width: 1600px; /* Max width for content */
+    margin: 0 auto; /* Center content horizontally */
+    width: 100%;
+    padding: 1.5rem; /* Default padding for small screens */
+    box-sizing: border-box; /* Include padding in width/height */
+    /* Styles from signup.html for centering its children */
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+}
+
+/* Adaptive padding for site-wrapper based on screen size - Identical, keeping one set */
+@media (min-width: 640px) {
+    /* sm breakpoint */
+    .site-wrapper {
+        padding: 2rem;
+    }
+}
+
+@media (min-width: 1024px) {
+    /* lg breakpoint */
+    .site-wrapper {
+        padding: 2rem 3rem;
+    }
+}
+
+/* Corelytics Branding at the top */
+.branding-header {
+    display: flex;
+    align-items: center;
+    justify-content: center; /* Centered brand for landing pages */
+    padding: 1rem 0;
+
+    width: 100%; /* Ensure it takes full width for centering */
+}
+
+.branding-header .logo-img {
+    height: 40px; /* Default logo size for smaller screens */
+    margin-right: 0.75rem;
+}
+
+.branding-header .brand-name {
+    font-weight: 800;
+    color: white;
+    font-size: 1.5rem; /* Default font size for smaller screens */
+    text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.3);
+}
+
+/* Scale branding for larger screens */
+@media (min-width: 768px) {
+    .branding-header .logo-img {
+        height: 300px;
+    }
+
+    .branding-header .brand-name {
+        font-size: 1.8rem;
+    }
+}
+
+/* Mobile Adjustments for Branding Header */
+@media (max-width: 767.98px) {
+    .branding-header {
+        justify-content: center;
+        padding: 0.75rem 0; /* Slightly reduced vertical padding for mobile */
+
+    }
+
+    .branding-header .logo-img {
+        height: 252px; /* Smaller logo for compact screens */
+    }
+
+    .branding-header .brand-name {
+        font-size: 1.3rem; /* Smaller brand name for compact screens */
+    }
+}
+
+/* Specific adjustment for very small mobile screens (e.g., iPhone SE) for branding header */
+@media (max-width: 380px) {
+    .branding-header {
+        padding: 0.5rem 0; /* Even tighter vertical padding */
+        margin-bottom: 1rem;
+    }
+    .branding-header .logo-img {
+        height: 28px; /* Even smaller logo for tiny screens */
+    }
+    .branding-header .brand-name {
+        font-size: 1.15rem; /* Even smaller brand name for tiny screens */
+    }
+}
+
+/* Page Title Styling for Signup (Unique to signup.html) */
+.page-title {
+    font-size: clamp(1rem, 4vw + 0.3rem, 3.0rem); /* Fluid sizing for signup heading */
+    font-weight: 900;
+    line-height: 1.1;
+    margin-bottom: 2rem;
+    color: white;
+    text-shadow: 3px 3px 6px rgba(0, 0, 0, 0.6);
+    text-align: center;
+    width: 100%;
+}
+
+
+/* Form Container (Prioritizing signup.html's refined padding/sizing for forms) */
+.form-card {
+    background-color: rgba(255, 255, 255, 0.95); /* Nearly opaque white for clarity */
+    padding: 1.5rem; /* Adjusted padding for smaller forms (from signup.html) */
+    border-radius: 1.5rem; /* More rounded */
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.25); /* Stronger shadow */
+    width: 100%;
+    max-width: 400px; /* Slightly narrower form (from signup.html) */
+    backdrop-filter: blur(5px); /* Subtle frosted glass effect */
+    -webkit-backdrop-filter: blur(5px);
+    transform: translateY(0); /* For potential animation effects */
+    transition: transform 0.3s ease-out;
+    margin-bottom: 2rem; /* Space below form for content like "Or sign up with" (from signup.html) */
+}
+
+/* Adjust form padding for larger screens - Prioritizing signup.html's refined padding */
+@media (min-width: 768px) {
+    .form-card {
+        padding: 2rem 2.5rem; /* Generous padding for desktop (from signup.html) */
+    }
+}
+
+.form-card .form-label {
+    font-weight: 700; /* Bolder labels */
+    color: #374151;
+    margin-bottom: 0.5rem; /* Slightly less margin below label (from signup.html) */
+    display: block; /* Ensure label is block-level */
+    text-align: left; /* Align labels to the left (from signup.html) */
+}
+
+.form-card .form-control {
+    background-color: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 0.75rem; /* More rounded input fields */
+    padding: 0.8rem 1rem; /* Reduced padding in inputs (from signup.html) */
+    font-size: 1rem; /* Slightly smaller font size (from signup.html) */
+    color: #2d3748;
+    margin-bottom: 1.5rem; /* Reduced space below inputs (from signup.html) */
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+    width: 100%; /* Ensure full width (from signup.html) */
+}
+
+.form-card .form-control:focus {
+    outline: none;
+    border-color: #6366f1; /* Consistent indigo focus */
+    box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.25);
+}
+
+/* Buttons - consistent vibrant style. Prioritizing signup.html's sizes for general buttons */
+.btn-gradient {
+    padding: 0.8rem 2rem; /* Reduced padding (from signup.html) */
+    border-radius: 0.75rem;
+    font-weight: 700;
+    font-size: 1.05rem; /* Slightly smaller font size (from signup.html) */
+    transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.3s ease;
+    border: none;
+    cursor: pointer;
+    display: inline-flex; /* For icon alignment if needed */
+    align-items: center;
+    justify-content: center;
+}
+
+/* Login Button */
+.btn-login {
+    background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%); /* Purple-indigo gradient */
+    color: white;
+    box-shadow: 0 6px 20px rgba(99, 102, 241, 0.4);
+}
+
+.btn-login:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(99, 102, 241, 0.5);
+    background: linear-gradient(135deg, #8b5cf6 0%, #6366f1 100%);
+}
+
+/* Signup Button */
+.btn-signup {
+    background: linear-gradient(135deg, #28a745 0%, #22933a 100%); /* Green gradient */
+    color: white;
+    box-shadow: 0 6px 20px rgba(40, 167, 69, 0.4);
+    /* `margin-left` was only in signup.html, keep for consistency on button pairs */
+}
+
+.btn-signup:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(40, 167, 69, 0.5);
+    background: linear-gradient(135deg, #22933a 0%, #28a745 100%);
+}
+
+.btn-gradient:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+}
+
+/* Specific button for quiz flow - kept separate due to distinct naming */
+.btn-primary {
+    background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%); /* Purple-indigo gradient */
+    color: white;
+    padding: 1rem 2.5rem; /* Larger padding for quiz buttons */
+    border-radius: 0.75rem;
+    font-weight: 700; /* Bolder text */
+    font-size: 1.15rem; /* Larger font size for quiz buttons */
+    transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.3s ease;
+    box-shadow: 0 6px 20px rgba(99, 102, 241, 0.4); /* Stronger shadow */
+    border: none;
+    cursor: pointer;
+    width: fit-content;
+    margin-top: 1rem; /* Space above button */
+}
+.btn-primary:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(99, 102, 241, 0.5);
+    background: linear-gradient(135deg, #8b5cf6 0%, #6366f1 100%);
+}
+.btn-primary:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 10px rgba(99, 102, 241, 0.2);
+}
+
+/* Specific styling for 'Forgot Password' link (from Merged CSS, but fits login/signup) */
+.forgot-password-link {
+    display: block;
+    text-align: center;
+    color: #4a5568;
+    margin-top: 1.5rem;
+    font-size: 0.95rem;
+    text-decoration: none;
+    opacity: 0.8;
+    transition: opacity 0.3s ease;
+}
+
+.forgot-password-link:hover {
+    opacity: 1;
+    color: #6366f1; /* Highlight on hover */
+}
+
+/* Styling for "Or sign up with" text before Google button (Unique to signup.html) */
+/* Note: This selector targets a <p> element that is a direct sibling of a .form-card,
+    and assumes it's within a .text-center div. This is quite specific. */
+.form-card + .text-center p {
+    color: white; /* Ensure text is visible over video */
+    text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.3);
+    margin-top: 1rem;
+    margin-bottom: 1rem;
+    font-size: 1.1rem;
+    font-weight: 600;
+}
+
+
+/* Footer Styling - Mostly identical, keeping the slightly cleaner one from signup.html */
+.footer {
+    background-color: rgba(30, 41, 59, 0.7); /* Matching overlay, slightly transparent */
+    color: #e0e7ff;
+    padding: 1.5rem 0;
+    text-align: center;
+    z-index: 20;
+    width: 100%;
+}
+
+.footer p {
+    margin-bottom: 0;
+    font-size: 0.95rem;
+    opacity: 0.9;
+}
+
+
+/* Specific adjustment for very small mobile screens (e.g., iPhone SE) - Unique to signup.html */
+@media (max-width: 380px) {
+    .form-card {
+        padding: 1.25rem; /* Reduce form padding further */
+    }
+
+    .btn-gradient {
+        padding: 0.7rem 1.8rem; /* Smaller button padding */
+        font-size: 1rem;
+    }
+
+    /* Ensure buttons stack or wrap if they get too wide on very small screens */
+    .form-card .flex.justify-center.gap-4.mb-4 {
+        flex-direction: column;
+        gap: 0.6rem;
+    }
+
+    .form-card .flex.justify-center.gap-4.mb-4 .btn-gradient {
+        width: 100%; /* Make buttons full width when stacked */
+    }
+
+    .form-card + .text-center p {
+        font-size: 0.95rem; /* Slightly smaller text for "Or sign up with" */
+    }
+}
+
+
+/* --- Styles for Quiz/Form elements (from previous Merged CSS) --- */
+
+/* Container for the entire app, centers content and controls overall width */
+.app-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    max-width: 500px; /* Increased max-width for better content display */
+    padding: 2rem;
+    background-color: #ffffff;
+    border-radius: 1.5rem;
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15); /* More pronounced shadow */
+    position: relative; /* For the message box overlay */
+}
+
+/* Wrapper for question cards, handles their absolute positioning */
+.question-cards-wrapper {
+    position: relative;
+    width: 100%;
+    min-height: 550px; /* Ensure enough height for cards */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 2rem; /* Space between cards and progress bar */
+}
+
+.question-card {
+    background-color: #ffffff;
+    width: 100%;
+    text-align: center;
+    transition: transform 0.5s ease-in-out, opacity 0.5s ease-in-out;
+    position: absolute;
+    top: 0; /* Position relative to .question-cards-wrapper */
+    left: 0;
+    opacity: 0; /* Hidden by default */
+    visibility: hidden;
+    will-change: transform, opacity;
+    padding: 1rem; /* Padding for individual card content */
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 100%; /* Take full height of wrapper */
+}
+
+.question-card.active {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0) scale(1);
+}
+.question-card.leaving {
+    transform: translateY(-50px) scale(0.9); /* Animate out to top */
+    opacity: 0;
+    pointer-events: none; /* Disable interaction during transition */
+}
+.question-card.entering {
+    transform: translateY(50px) scale(0.9); /* Animate in from bottom */
+    opacity: 0;
+}
+
+.question-card h2 {
+    font-size: 2.25rem; /* Larger heading */
+    font-weight: 800; /* Extra bold, matching dashboard */
+    line-height: 1.2;
+    margin-bottom: 1.5rem;
+    color: #1a202c; /* Darker text for headings, matching dashboard */
+}
+.question-card p {
+    font-size: 1.15rem;
+    color: #4a5568; /* Matching dashboard text */
+    margin-bottom: 2rem;
+}
+
+/* Input field for quiz - distinct from .form-control */
+.input-field {
+    background-color: #f7fafc;
+    border: 2px solid #e2e8f0;
+    border-radius: 0.75rem;
+    padding: 0.9rem 1.4rem; /* Increased padding */
+    width: calc(100% - 2.8rem); /* Adjust for padding */
+    font-size: 1.1rem;
+    color: #2d3748; /* Matching dashboard text */
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+    margin-bottom: 1rem; /* Space between input and select */
+}
+.input-field:focus {
+    outline: none;
+    border-color: #6366f1; /* Indigo focus color, matching dashboard */
+    box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.3); /* Matching dashboard */
+}
+
+select.input-field {
+    -webkit-appearance: none; /* Remove default arrow on select */
+    -moz-appearance: none;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='%23A0AEC0'%3E%3Cpath fill-rule='evenodd' d='M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z' clip-rule='evenodd'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 1rem center;
+    background-size: 1.5em;
+}
+
+.progress-bar-container {
+    width: 90%; /* Wider progress bar */
+    max-width: 400px;
+    background-color: #e2e8f0;
+    border-radius: 9999px;
+    height: 12px; /* Thicker progress bar, matching dashboard */
+    overflow: hidden;
+    margin-top: 1.5rem; /* Space below question wrapper */
+    position: relative;
+}
+.progress-bar-fill {
+    height: 100%;
+    width: 0%;
+    background: linear-gradient(90deg, #6366f1, #8b5cf6); /* Matching gradient, matching dashboard */
+    border-radius: 9999px;
+    transition: width 0.4s ease-in-out;
+}
+
+/* Existing message-box for centered quiz/form messages */
+.message-box {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: #fff;
+    padding: 2.5rem; /* More padding, matching dashboard card style */
+    border-radius: 1.5rem; /* More rounded, matching dashboard card style */
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.25); /* Stronger shadow, matching dashboard */
+    z-index: 1000;
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    max-width: 450px; /* Slightly larger */
+    width: 90%;
+    opacity: 0;
+    transition: opacity 0.3s ease-in-out;
+}
+.message-box.show {
+    display: flex;
+    opacity: 1;
+}
+.message-box button {
+    margin-top: 1.5rem; /* Space above OK button */
+}
+
+/* --- NEW: Modal Styles for Add Intake Form --- */
+.modal {
+    display: none; /* Hidden by default */
+    position: fixed; /* Stay in place */
+    z-index: 2000; /* Adjusted z-index to be definitively on top */
+    left: 0;
+    top: 0;
+    width: 100%; /* Full width */
+    height: 100%;
+    overflow: auto; /* Enable scroll if needed */
+    background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 0.2s ease-in-out; /* Animation speed adjusted */
+    pointer-events: none; /* Allows clicks underneath when hidden */
+}
+.modal.show {
+    opacity: 1;
+    pointer-events: auto;
+    display: flex; /* Ensure it's flex when shown */
+}
+.modal-content {
+    background-color: #fefefe;
+    margin: auto;
+    padding: 20px;
+    border-radius: 1rem;
+    width: 90%;
+    max-width: 500px;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    position: relative;
+    transform: translateY(-50px); /* Initial state for animation */
+    transition: transform 0.2s ease-in-out; /* Animation speed adjusted */
+}
+.modal.show .modal-content {
+    transform: translateY(0); /* Final state for animation */
+}
+.close-button {
+    font-size: 28px;
+    font-weight: bold;
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    background: linear-gradient(45deg, #6366f1, #8b5cf6); /* Matching welcome-header */
+    color: white;
+    padding: 5px 10px;
+    border-radius: 0.5rem;
+    border: none;
+    cursor: pointer;
+    line-height: 1;
+    text-shadow: none;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    transition: all 0.2s ease-in-out;
+}
+.close-button:hover,
+.close-button:focus {
+    text-decoration: none;
+    cursor: pointer;
+    background: linear-gradient(45deg, #8b5cf6, #6366f1); /* Subtle hover gradient change */
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+    outline: none;
+}
+.close-button:active {
+    transform: translateY(0);
+    box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+}
+
+
+/* --- NEW: Styles for temporary toast messages (renamed from .message-box) --- */
+.toast-message-box {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-weight: bold;
+    z-index: 1100; /* Above modal */
+    box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+    opacity: 0;
+    transform: translateY(-20px);
+    transition: opacity 0.3s ease-out, transform 0.3s ease-out;
+}
+.toast-message-box.show {
+    opacity: 1;
+    transform: translateY(0);
+}
+.toast-message-box.success {
+    background-color: #d4edda;
+    color: #155724;
+    border: 1px solid #c3e6cb;
+}
+.toast-message-box.error {
+    background-color: #f8d7da;
+    color: #721c24;
+    border: 1px solid #f5c6cb;
+}
+
+
+/* --- Unique Sidebar Styles (from previous Merged CSS) --- */
+.sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100vh;
+    width: 260px; /* Slightly wider */
+    background: linear-gradient(180deg, #3f51b5 0%, #2b3990 100%); /* Deep indigo gradient */
+    box-shadow: 5px 0 20px rgba(0, 0, 0, 0.3); /* Stronger shadow to pop */
+    padding: 2.5rem 0; /* More vertical padding */
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between; /* Push logo to top, logout to bottom */
+    z-index: 1050; /* Ensure it's above other content */
+    transition: transform 0.3s ease-in-out; /* Smooth slide for mobile */
+    transform: translateX(0); /* Default show on desktop */
+}
+
+.sidebar.hidden-mobile {
+    /* For mobile to hide initially */
+    transform: translateX(-100%);
+}
+
+@media (min-width: 768px) {
+    /* On desktop, always show, no transform */
+    .sidebar.hidden-mobile {
+        transform: translateX(0);
+    }
+}
+
+
+.sidebar .logo-section {
+    padding: 0 1.5rem 2.5rem; /* Padding for the logo area */
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    margin-bottom: 2rem;
+    text-align: center;
+}
+
+.sidebar .logo-section .logo-text {
+    font-weight: 900; /* Even bolder */
+    font-size: 2.5rem; /* Larger logo text */
+    color: white;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2); /* Subtle text shadow */
+}
+
+.sidebar .nav-links {
+    flex-grow: 1; /* Allows nav links to take available space */
+    list-style: none; /* Remove bullet points */
+    padding: 0;
+    margin: 0;
+}
+
+.sidebar .nav-links li {
+    margin-bottom: 0.5rem; /* Space between links */
+}
+
+.sidebar .nav-links a {
+    color: #e0e7ff; /* Lighter text for good contrast */
+    padding: 1.25rem 2rem;
+    display: flex; /* For icon and text alignment */
+    align-items: center;
+    text-decoration: none;
+    font-weight: 600;
+    transition: background-color 0.2s ease, color 0.2s ease, transform 0.2s ease;
+    border-radius: 0.75rem; /* Rounded corners for each link */
+    margin: 0 1rem; /* Inset from sidebar edges */
+    position: relative; /* For the active indicator */
+    overflow: hidden; /* For pseudo-element effects */
+}
+
+.sidebar .nav-links a:hover {
+    background-color: rgba(255, 255, 255, 0.15); /* Lighter hover */
+    color: white;
+    transform: translateX(5px); /* Slight slide on hover */
+}
+
+.sidebar .nav-links a .fas {
+    margin-right: 18px; /* More space for icons */
+    font-size: 1.25rem; /* Larger icons */
+    color: #a7b7ff; /* Slightly brighter icon color */
+}
+
+/* Active link indicator - a subtle glowing bar */
+.sidebar .nav-links a.active {
+    background-color: rgba(255, 255, 255, 0.25); /* More prominent background for active */
+    color: white;
+    box-shadow: inset 3px 0 0 0 #81c784; /* Green bar on the left */
+    transform: translateX(0); /* No slide for active */
+}
+
+.sidebar .nav-links a.active .fa-solid {
+    color: white; /* White icon for active */
+}
+
+/* Logout link styling */
+.sidebar .logout-section {
+    padding: 2rem 1.5rem 0; /* Padding for the bottom section */
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    margin-top: 2rem;
+}
+
+.sidebar .logout-section a {
+    color: #ffdde1; /* Slightly reddish for logout */
+    padding: 1.25rem 2rem;
+    display: flex;
+    align-items: center;
+    text-decoration: none;
+    font-weight: 600;
+    transition: background-color 0.2s ease, color 0.2s ease, transform 0.2s ease;
+    border-radius: 0.75rem;
+    margin: 0 1rem;
+}
+
+.sidebar .logout-section a:hover {
+    background-color: rgba(255, 99, 71, 0.2); /* Subtle red hover */
+    color: white;
+    transform: translateX(5px);
+}
+
+.sidebar .logout-section a .fa-solid,
+.sidebar .logout-section a .fas {
+    margin-right: 12px; /* or 18px depending on desired spacing */
+}
+
+
+/* Mobile Sidebar/Offcanvas Overlay */
+@media (max-width: 767.98px) {
+    .sidebar {
+        box-shadow: 0 0 25px rgba(0, 0, 0, 0.7); /* Stronger shadow for mobile overlay */
+    }
+
+    .sidebar.show {
+        transform: translateX(0); /* Show when 'show' class is added */
+    }
+
+    .overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: rgba(0, 0, 0, 0.6); /* Darker overlay */
+        z-index: 1040; /* This is correctly lower than Bootstrap's modal-backdrop (1050) and your custom modal (2000) */
+        display: none;
+        transition: opacity 0.3s ease;
+        opacity: 0;
+    }
+
+    .overlay.show {
+        display: block;
+        opacity: 1;
+    }
+}
+
+/* --- Dashboard Content Styles --- */
+.main-content-area {
+    position: relative; /* Needed for absolute positioning of the pseudo-element */
+    min-height: 100vh;
+    background-color: #f0f4f8; /* Match body background */
+    padding: 2rem; /* Default padding for desktop */
+    margin-left: 260px; /* Offset for the fixed sidebar */
+    width: calc(100% - 260px); /* Take up remaining width */
+    box-sizing: border-box; /* Include padding in width calculation */
+    transition: margin-left 0.3s ease-in-out, width 0.3s ease-in-out; /* Smooth transition */
+    z-index: 1; /* Ensure content is above the pseudo-element background */
+}
+
+.main-content-area::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image: url('/static/background_dashboard.jpg');
+    background-size: cover; /* Keeps the entire image visible */
+    background-repeat: no-repeat; /* Prevents repeating */
+    background-position: center center; /* Centers the image */
+    opacity: 0.6; /* Adjust this value (0.0 to 1.0) to your desired opacity */
+    z-index: -1; /* Place it behind the actual content of .main-content-area */
+}
+
+/* Adjustments for .main-content-area on mobile remain the same */
+@media (max-width: 767.98px) {
+    .main-content-area {
+        margin-left: 0;
+        width: 100%; /* Full width on mobile */
+        padding: 1.0rem; /* Adjusted for mobile */
+    }
+}
+
+/* For very small screens, make it even tighter */
+@media (max-width: 380px) {
+    .main-content-area {
+        padding: 1rem; /* Even tighter for tiny screens */
+    }
+}
+
+/* Adjustments for .main-content-area on mobile */
+@media (max-width: 767.98px) {
+    .main-content-area {
+        margin-left: 0;
+        width: 100%; /* Full width on mobile */
+        padding: 1.0rem; /* Adjusted for mobile */
+    }
+}
+
+/* Apply 80% max-width and centering to inner content for desktop */
+.content-wrapper-desktop {
+    width: 100%; /* Default to full width inside main-content-area */
+}
+
+/* Removed the @media (min-width: 992px) block that limited max-width to 80% */
+
+
+/* For very small screens, make it even tighter */
+@media (max-width: 380px) {
+    .main-content-area {
+        padding: 1rem; /* Even tighter for tiny screens */
+    }
+}
+
+/* If .container-fluid is nested and causing issues, remove its horizontal padding on mobile.
+    Use !important to override Bootstrap's default if it's in use. */
+@media (max-width: 767.98px) {
+    .container-fluid {
+        padding-right: 0 !important;
+        padding-left: 0 !important;
+        /* Note: container-fluid itself typically doesn't have border-radius by default.
+            If it's gaining it from a parent, that parent's style needs to be addressed. */
+    }
+}
+
+/* --- Specific fix for the mobile navbar's border-radius --- */
+/* The rounded-xl Tailwind class applies border-radius to the navbar.
+    We need to override this for smaller screens. */
+@media (max-width: 767.98px) {
+    .navbar.d-md-none { /* Target the mobile-only navbar */
+        border-radius: 0 !important; /* Remove border-radius on mobile */
+    }
+}
+
+
+/* Main Content Layout (Asymmetrical) - From previous Merged CSS (landing page specific) */
+.main-content {
+    display: flex;
+    align-items: center; /* Center vertically */
+    justify-content: center; /* Default to center for mobile/small screens */
+    flex-direction: column; /* Default to column for mobile/small screens */
+    flex-grow: 1;
+    padding: 0; /* Padding is handled by site-wrapper */
+}
+
+/* Switch to row layout for larger screens */
+@media (min-width: 768px) {
+    /* md breakpoint */
+    .main-content {
+        flex-direction: row; /* Row for desktop/larger screens */
+        justify-content: space-between; /* Space out title and form on desktop */
+        align-items: center;
+    }
+}
+
+
+/* Hero Title Styling - From previous Merged CSS (landing page specific) */
+.hero-title-container {
+    flex: 1; /* Takes available space */
+    max-width: 600px; /* Limit width */
+    color: white;
+    text-shadow: 3px 3px 6px rgba(0, 0, 0, 0.6); /* Stronger shadow for impact */
+    text-align: center; /* Center text on mobile */
+    margin-bottom: 2.5rem; /* Space below title for mobile */
+}
+
+/* Fluid font sizing for h1 */
+.hero-title-container h1 {
+    font-size: clamp(2.5rem, 8vw + 1rem, 4.5rem); /* min, fluid, max */
+    font-weight: 900;
+    line-height: 1.1;
+    margin-bottom: 1rem;
+}
+
+/* Fluid font sizing for p */
+.hero-title-container p {
+    font-size: clamp(1rem, 2.5vw + 0.5rem, 1.5rem); /* min, fluid, max */
+    font-weight: 400;
+    line-height: 1.5;
+    opacity: 0.9;
+}
+
+/* Reset text alignment and margin for desktop */
+@media (min-width: 768px) {
+    .hero-title-container {
+        text-align: left; /* Align text left on desktop */
+        margin-bottom: 0; /* Remove bottom margin on desktop */
+        margin-right: 2rem; /* Add space between text and form */
+    }
+}
+
+/* --- Dashboard Welcome Header Styling --- */
+.welcome-header {
+    background: linear-gradient(45deg, #6366f1, #8b5cf6); /* Purple-indigo gradient */
+    color: white;
+    padding: 2rem 1.5rem;
+    border-radius: 1.5rem; /* More rounded */
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+    margin-bottom: 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap; /* Allow wrapping */
+}
+
+.welcome-header h1 {
+    font-size: 2.25rem; /* Larger welcome text */
+    font-weight: 800; /* Extra bold */
+    line-height: 1.2;
+    margin-bottom: 0;
+}
+
+.profile-pic-container {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    overflow: hidden;
+    border: 4px solid rgba(255, 255, 255, 0.8); /* White border for profile pic */
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    flex-shrink: 0; /* Prevent shrinking on small screens */
+    margin-left: 1.5rem; /* Space from text */
+}
+
+.profile-pic-container img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* Mobile adjustments for the welcome-header */
+@media (max-width: 575.98px) {
+    .welcome-header {
+        flex-direction: column; /* Stack content vertically */
+        align-items: center; /* Center items horizontally within the column */
+        padding: 1.5rem 1rem; /* Reduced padding for mobile screens */
+        text-align: center; /* Center the text as well */
+    }
+
+    .profile-pic-container {
+        margin-left: 0; /* Remove left margin */
+        margin-bottom: 1rem; /* Space below the image */
+        order: -1; /* Place profile picture at the top of the flex column */
+        width: 70px; /* Slightly smaller profile picture for mobile */
+        height: 70px;
+    }
+
+    .welcome-header h1 {
+        font-size: 1.5rem; /* Slightly smaller font for mobile h1 */
+        text-align: center; /* Ensure welcome text is centered */
+    }
+}
+
+/* Further adjustments for very small mobile screens (e.g., iPhone SE) */
+@media (max-width: 380px) {
+    .welcome-header {
+        padding: 1rem 0.75rem; /* Even tighter padding for very small screens */
+    }
+    .welcome-header h1 {
+        font-size: 1.3rem; /* Even smaller font for tiny screens */
+    }
+    .profile-pic-container {
+        width: 60px; /* Even smaller profile picture for tiny screens */
+        height: 60px;
+    }
+}
+
+
+/* --- Key Metrics Section --- */
+.metric-card {
+    background-color: #ffffff;
+    border-radius: 1.5rem;
+    padding: 1.5rem;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+    text-align: center;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 100%; /* Ensure cards fill grid cell height */
+}
+
+.metric-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 12px 25px rgba(0, 0, 0, 0.15);
+}
+
+.metric-card .icon {
+    font-size: 2.5rem;
+    color: #6366f1;
+    margin-bottom: 1rem;
+}
+
+.metric-card .title {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #4a5568;
+    margin-bottom: 0.5rem;
+}
+
+.metric-card .value {
+    font-size: 2.5rem; /* Larger value */
+    font-weight: 800;
+    color: #1a202c;
+    line-height: 1;
+}
+
+.metric-card .unit {
+    font-size: 1.25rem;
+    color: #4a5568;
+    font-weight: 600;
+}
+
+/* --- Calorie Budget Card --- */
+.calorie-budget-card {
+    background: linear-gradient(180deg, #edf2f7 0%, #ffffff 100%); /* Subtle light gradient */
+    border-radius: 1.5rem;
+    padding: 2rem;
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.1);
+    position: relative;
+    overflow: hidden;
+    height: 100%; /* Ensure it fills its grid cell */
+}
+
+.calorie-budget-card h5 {
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: #2d3748;
+    margin-bottom: 1.5rem;
+}
+
+.calorie-budget-card .budget-summary {
+    font-size: 1.1rem;
+    color: #4a5568;
+    margin-bottom: 1.5rem;
+}
+
+.calorie-budget-card .budget-summary strong {
+    color: #1a202c;
+    font-size: 1.25rem;
+    font-weight: 800;
+}
+
+.calorie-budget-card .list-group-item {
+    background-color: transparent; /* No background */
+    border-color: #e2e8f0; /* Lighter border */
+    padding: 0.8rem 0;
+    font-weight: 500;
+    color: #2d3748;
+}
+
+.calorie-budget-card .list-group-item .badge {
+    background-color: #a0aec0; /* Muted badge */
+    font-weight: 600;
+    padding: 0.5em 0.8em;
+    border-radius: 9999px; /* Pill shape */
+}
+
+.calorie-budget-card .list-group-item.text-dark .badge {
+    background-color: #6366f1; /* Primary color for total */
+    color: white;
+}
+
+.btn-add-intake {
+    background: linear-gradient(45deg, #28a745, #22933a); /* Green gradient */
+    color: white;
+    padding: 0.9rem 2rem;
+    border-radius: 0.75rem;
+    font-weight: 700;
+    font-size: 1.1rem;
+    transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.3s ease;
+    box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3);
+}
+
+.btn-add-intake:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 20px rgba(40, 167, 69, 0.4);
+    background: linear-gradient(45deg, #22933a, #28a745);
+}
+
+.btn-add-intake:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 10px rgba(40, 167, 69, 0.2);
+}
+
+.btn-secondary{
+    background-color: #6366f1;
+}
+
+/* --- Meal Planner Page Styles --- */
+.loading-spinner {
+    display: none;
+    text-align: center;
+    margin-top: 2rem; /* Increased margin for better spacing */
+}
+
+.loading-spinner .spinner-border {
+    color: #6366f1; /* Ensure spinner is primary color */
+}
+
+.loading-spinner p {
+    font-size: 1.1rem;
+    color: #4a5568;
+    margin-top: 0.75rem;
+    font-weight: 500;
+}
+
+.error-message {
+    color: #dc3545; /* Bootstrap danger red */
+    margin-top: 1.5rem;
+    font-weight: 600;
+    font-size: 1.05rem;
+}
+
+.meal-plan-content .meal-plan-pre { /* Specific class for the <pre> tag inside meal-plan-content */
+    white-space: pre-wrap; /* Ensures long lines wrap */
+    word-wrap: break-word; /* Breaks words if necessary */
+    font-family: 'Inter', sans-serif;
+    font-size: 1rem;
+    line-height: 1.6;
+    color: #2d3748; /* Dark text for readability */
+    background-color: #f8fafc; /* Lighter background for code/pre blocks */
+    border: 1px solid #e2e8f0; /* Consistent border color */
+    border-radius: 0.75rem; /* Matches form inputs and other elements */
+    padding: 1.5rem;
+    text-align: left; /* Ensure text aligns left in pre block */
+    box-shadow: inset 0 1px 3px rgba(0,0,0,0.05); /* Subtle inner shadow for depth */
+}
+
+/* Adjustments for the main-wrapper to correctly stack header, main, and footer */
+.main-wrapper {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh; /* Ensure it takes full viewport height */
+    width: 100%;
+    margin-left: 260px; /* Offset for the desktop sidebar */
+    transition: margin-left 0.3s ease-in-out;
+    background-color: #f0f4f8; /* Ensures consistent background */
+}
+
+@media (max-width: 767.98px) {
+    .main-wrapper {
+        margin-left: 0; /* No offset on mobile */
+    }
+}
+
+/* Ensure branding-header and nav in meal_chart_planner.html align with dashboard */
+.branding-header .app-name { /* Target the app-name span specifically */
+    font-weight: 800;
+    color: #1a202c; /* Darker color for app name in header */
+    font-size: 1.8rem;
+    margin-left: 0.5rem; /* Space from logo */
+}
+
+.branding-header .logo img { /* Ensure logo size is consistent */
+    height: 40px;
+    vertical-align: middle;
+}
+
+.branding-header .navbar-nav .nav-link {
+    color: #4a5568; /* Link color */
+    font-weight: 600;
+    padding: 0.5rem 1rem;
+    border-radius: 0.5rem;
+    transition: background-color 0.2s ease;
+}
+
+.branding-header .navbar-nav .nav-link:hover {
+    background-color: rgba(0,0,0,0.05);
+}
+
+.branding-header .navbar-nav .nav-item.active .nav-link {
+    color: #6366f1; /* Active link color */
+    background-color: rgba(99,102,241,0.1);
+}
+
+/* Ensure main-content-area padding is consistent */
+.main-content-area {
+    padding: 2rem; /* Default padding for desktop */
+    flex-grow: 1; /* Allows main content to push footer down */
+}
+
+@media (max-width: 767.98px) {
+    .main-content-area {
+        padding: 1.0rem; /* Adjusted for mobile */
+    }
+}
+
+

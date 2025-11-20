@@ -1,0 +1,121 @@
+{% extends "base.html" %}
+
+{% block title %}LOGIC - Corelytics{% endblock title %}
+{% block page_title %}LOGIC{% endblock page_title %}
+
+{% block head_extra %}
+<script src="https://cdn.jsdelivr.net/npm/marked@4.0.0/marked.min.js"></script>
+<link rel="stylesheet" href="{{ url_for('static', filename='css/chat.css') }}">
+{% endblock head_extra %}
+
+{% block content %}
+<div class="logic-layout-container">
+    
+    <div class="conversation-nav">
+        <button id="newChatBtn" class="history-pill new-chat-pill">
+            <i class="fas fa-plus"></i>
+            <span>New Chat</span>
+        </button>
+
+        <div class="nav-divider"></div>
+
+        <div class="history-scroll-area" id="conversationList">
+            {% if recent_conversations %}
+                {% for conv in recent_conversations %}
+                <div class="history-pill conversation-trigger" data-id="{{ conv.id }}">
+                    <i class="far fa-comment-alt"></i>
+                    <div class="pill-content">
+                        <span class="pill-title">{{ conv.title }}</span>
+                        <span class="pill-date">{{ conv.date_str }}</span>
+                    </div>
+                </div>
+                {% endfor %}
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="bg-white p-0 md:p-6 rounded-3xl shadow-md mb-8 chat-card-wrapper">
+        <div class="chat-header-bar">
+            <div class="bot-identity">
+                <div class="bot-status-dot"></div>
+                <span class="font-bold text-gray-700">Logic AI</span>
+            </div>
+            <div class="header-controls">
+                <button id="ttsToggleBtn" class="header-icon-btn active" title="Toggle AI Voice">
+                    <i id="ttsIcon" class="fas fa-volume-up"></i>
+                </button>
+                <button id="continuousListenToggleBtn" class="header-icon-btn" title="Toggle Continuous Listening">
+                    <i id="continuousListenIcon" class="fas fa-headset"></i>
+                </button>
+                <button id="voiceSettingsBtn" class="header-icon-btn" title="Voice Settings" data-bs-toggle="modal"
+                    data-bs-target="#voiceSettingsModal">
+                    <i class="fas fa-cog"></i>
+                </button>
+            </div>
+        </div>
+
+        <div class="chat-container">
+            <div class="chat-messages" id="chatMessages">
+                {% if chat_history %}
+                    {% for message in chat_history %}
+                        {% if message.role == 'user' %}
+                        <div class="message-bubble user-message">{{ message.parts[0].text }}</div>
+                        {% elif message.role == 'model' %}
+                        <div class="message-wrapper bot-wrapper">
+                            <img src="{{ url_for('static', filename='logic.png') }}" alt="Logic" class="bot-avatar">
+                            <div class="message-bubble bot-message" data-raw-text="{{ message.parts[0].text | e }}"></div>
+                        </div>
+                        {% endif %}
+                    {% endfor %}
+                {% else %}
+                    <div class="empty-state-message">
+                        <img src="{{ url_for('static', filename='logic.png') }}" alt="Logic" class="empty-state-avatar">
+                        <h3>Hello! I'm LOGIC.</h3>
+                        <p>Select a conversation above or ask me anything about your diet.</p>
+                    </div>
+                {% endif %}
+
+                <div class="typing-indicator" id="typingIndicator" style="display: none;">
+                    <span></span><span></span><span></span>
+                </div>
+            </div>
+            
+            <div class="chat-input-area">
+                <button id="voiceControlBtn" class="voice-button" title="Talk to LOGIC"><i
+                        class="fas fa-microphone"></i></button>
+                <input type="text" id="chatInput" class="chat-input" placeholder="Type or talk..." />
+                <button id="sendMessageBtn" class="send-button"><i class="fas fa-paper-plane mr-2"></i> Send</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="voiceSettingsModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Voice Settings</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <label for="voiceSelector" class="form-label">AI Voice</label>
+                    <select id="voiceSelector" class="form-select"></select>
+                </div>
+                <div class="mb-3">
+                    <label for="voiceRate" class="form-label">Speed: <span id="rateValue">1.0</span></label>
+                    <input type="range" class="form-range" id="voiceRate" min="0.5" max="2" step="0.1" value="1">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" id="saveVoiceSettingsBtn">Save</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock content %}
+
+{% block scripts_extra %}
+<script src="{{ url_for('static', filename='js/logic.js') }}"></script>
+{% endblock scripts_extra %}

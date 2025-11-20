@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{% block title %}Corelytics{% endblock title %}</title>
+    
+    <link rel="shortcut icon" href="{{ url_for('static', filename='logo.png') }}">
+    
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+    
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/modals.css') }}">
+    
+    {% block head_extra %}{% endblock head_extra %}
+</head>
+<body>
+    <div class="overlay" id="sidebar-overlay"></div>
+
+    <div class="sidebar hidden-mobile" id="desktop-sidebar">
+        <div class="logo-section">
+            <div class="logo-text">Corelytics</div>
+        </div>
+
+        <ul class="nav-links">
+            <li><a href="{{ url_for('main.dashboard') }}" class="{% if request.endpoint == 'main.dashboard' %}active{% endif %}"><i class="fas fa-home"></i> Dashboard</a></li>
+            <li><a href="{{ url_for('main.history') }}" class="{% if request.endpoint == 'main.history' %}active{% endif %}"><i class="fas fa-history"></i> History</a></li>
+            <li><a href="{{ url_for('main.meal_chart_planner') }}" class="{% if request.endpoint == 'main.meal_chart_planner' %}active{% endif %}"><i class="fas fa-utensils"></i> Meal Planner</a></li>
+            <li><a href="{{ url_for('main.analytics') }}" class="{% if request.endpoint == 'main.analytics' %}active{% endif %}"><i class="fas fa-chart-line"></i> Analytics</a></li>
+            <li><a href="{{ url_for('main.logic') }}" class="{% if request.endpoint == 'main.logic' %}active{% endif %}"><i class="fas fa-robot"></i> Logic</a></li>
+            <li><a href="{{ url_for('main.settings_get') }}" class="{% if request.endpoint == 'main.settings_get' %}active{% endif %}"><i class="fas fa-cog"></i> Settings</a></li>
+            <li><a href="{{ url_for('main.help_page') }}" class="{% if request.endpoint == 'main.help_page' %}active{% endif %}"><i class="fas fa-question-circle"></i> Help</a></li>
+        </ul>
+
+        <div class="logout-section">
+            <a href="{{ url_for('auth.logout') }}"><i class="fas fa-sign-out-alt"></i> Logout</a>
+        </div>
+    </div>
+
+    <div class="main-content-area">
+        <nav class="navbar navbar-dark bg-dark d-md-none mb-4 rounded-xl shadow-md fixed-top" style="z-index: 1030; width: 100%;">
+            <div class="container-fluid">
+                <button class="navbar-toggler" type="button" id="sidebarToggleMobile" aria-controls="mobileSidebar" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <a class="navbar-brand me-auto ps-3 text-lg font-bold" href="{{ url_for('main.dashboard') }}">Corelytics</a>
+            </div>
+        </nav>
+
+        <div class="pt-20 md:pt-0">
+            {% block page_wrapper %}
+                
+                <div class="welcome-header mb-8">
+                    <h1 class="flex-grow">
+                        {% block page_title %}Dashboard{% endblock page_title %}
+                    </h1>
+                    <div class="profile-pic-container">
+                        {% if session.profile_picture %}
+                            <img src="{{ session.profile_picture }}" alt="Profile Picture" />
+                        {% else %}
+                            <img src="https://placehold.co/80x80/6366f1/ffffff?text=User" alt="Default Picture" />
+                        {% endif %}
+                    </div>
+                </div>
+
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                    {% if messages %}
+                        <div class="flash-messages-container mb-4" style="display: none;">
+                        {% for category, message in messages %}
+                            <div class="flash-message flash-{{ category }}">{{ message }}</div>
+                        {% endfor %}
+                        </div>
+                    {% endif %}
+                {% endwith %}
+                
+                {% block content %}{% endblock content %}
+
+            {% endblock page_wrapper %}
+        </div>
+    </div>
+
+    <div class="sidebar hidden-mobile d-md-none" id="mobileSidebar">
+        <div class="logo-section">
+            <div class="logo-text">Corelytics</div>
+        </div>
+        <ul class="nav-links">
+            <li><a href="{{ url_for('main.dashboard') }}" class="{% if request.endpoint == 'main.dashboard' %}active{% endif %}"><i class="fas fa-home"></i> Dashboard</a></li>
+            <li><a href="{{ url_for('main.history') }}" class="{% if request.endpoint == 'main.history' %}active{% endif %}"><i class="fas fa-history"></i> History</a></li>
+            <li><a href="{{ url_for('main.meal_chart_planner') }}" class="{% if request.endpoint == 'main.meal_chart_planner' %}active{% endif %}"><i class="fas fa-utensils"></i> Meal Planner</a></li>
+            <li><a href="{{ url_for('main.analytics') }}" class="{% if request.endpoint == 'main.analytics' %}active{% endif %}"><i class="fas fa-chart-line"></i> Analytics</a></li>
+            <li><a href="{{ url_for('main.logic') }}" class="{% if request.endpoint == 'main.logic' %}active{% endif %}"><i class="fas fa-robot"></i> Logic</a></li>
+            <li><a href="{{ url_for('main.settings_get') }}" class="{% if request.endpoint == 'main.settings_get' %}active{% endif %}"><i class="fas fa-cog"></i> Settings</a></li>
+            <li><a href="{{ url_for('main.help_page') }}" class="{% if request.endpoint == 'main.help_page' %}active{% endif %}"><i class="fas fa-question-circle"></i> Help</a></li>
+        </ul>
+        <div class="logout-section">
+            <a href="{{ url_for('auth.logout') }}"><i class="fas fa-sign-out-alt"></i> Logout</a>
+        </div>
+    </div>
+
+    <div id="toastMessageBox" class="toast-message-box"></div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+
+    {% block scripts_extra %}{% endblock scripts_extra %}
+</body>
+</html>

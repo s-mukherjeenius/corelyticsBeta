@@ -17,7 +17,8 @@ def get_db_connection():
                 user=os.getenv('DB_USER', 'root'),
                 # Use empty string '' for XAMPP default, not None
                 password=os.getenv('DB_PASSWORD', ''),
-                database=os.getenv('DB_NAME', 'corelytics')
+                database=os.getenv('DB_NAME', 'corelytics'),
+                port=int(os.getenv('DB_PORT', 3306))
             )
             
             # 3. Store it in 'g' so we can reuse it later in the same request

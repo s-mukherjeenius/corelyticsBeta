@@ -1261,3 +1261,48 @@ select.input-field {
 .accordion-collapse {
     visibility: visible !important;
 }
+
+
+
+
+
+
+/* --- ADD THIS TO THE BOTTOM OF main.css --- */
+
+/* 1. Utility to Lock Background Scrolling */
+body.no-scroll {
+    overflow: hidden !important;
+    height: 100vh !important;
+    position: fixed !important; /* Strongest lock for Mobile Safari */
+    width: 100% !important;
+}
+
+/* 2. Fix Sidebar Internal Scrolling */
+.sidebar {
+    /* Ensure it uses Flexbox to manage height */
+    display: flex;
+    flex-direction: column;
+    height: 100vh; 
+    max-height: 100vh; /* Hard limit */
+    overflow: hidden;  /* Hide outer scrollbars */
+}
+
+/* Allow the middle links to scroll if the screen is short */
+.sidebar .nav-links {
+    flex-grow: 1;
+    overflow-y: auto; /* Enable scroll only for links */
+    min-height: 0;    /* Flexbox scrolling fix */
+    
+    /* Hide Scrollbar for cleaner look */
+    -ms-overflow-style: none;  /* IE and Edge */
+    scrollbar-width: none;  /* Firefox */
+}
+.sidebar .nav-links::-webkit-scrollbar {
+    display: none; /* Chrome, Safari, Opera */
+}
+
+/* Ensure Logo and Logout stay pinned and don't shrink */
+.sidebar .logo-section,
+.sidebar .logout-section {
+    flex-shrink: 0; 
+}

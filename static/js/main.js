@@ -8,20 +8,48 @@
 
 document.addEventListener('DOMContentLoaded', function() {
     
-    // --- Mobile Sidebar Toggle Logic ---
+    // --- Mobile Sidebar Toggle Logic (Updated for Locking) ---
     const sidebarToggle = document.getElementById('sidebarToggleMobile');
     const mobileSidebar = document.getElementById('mobileSidebar');
     const overlay = document.getElementById('sidebar-overlay');
+    const body = document.body;
+
+    // Function to Open Sidebar & Lock Body
+    function openSidebar() {
+        if (!mobileSidebar) return;
+        mobileSidebar.classList.add('show');
+        overlay.classList.add('show');
+        body.classList.add('no-scroll'); // Locks the background
+    }
+
+    // Function to Close Sidebar & Unlock Body
+    function closeSidebar() {
+        if (!mobileSidebar) return;
+        mobileSidebar.classList.remove('show');
+        overlay.classList.remove('show');
+        body.classList.remove('no-scroll'); // Unlocks the background
+    }
 
     if (sidebarToggle && mobileSidebar && overlay) {
-        sidebarToggle.addEventListener('click', function() {
-            mobileSidebar.classList.toggle('show');
-            overlay.classList.toggle('show');
+        // Toggle Button Click
+        sidebarToggle.addEventListener('click', function(e) {
+            e.stopPropagation(); // Prevent bubbling
+            if (mobileSidebar.classList.contains('show')) {
+                closeSidebar();
+            } else {
+                openSidebar();
+            }
         });
 
+        // Close when clicking the overlay
         overlay.addEventListener('click', function() {
-            mobileSidebar.classList.remove('show');
-            overlay.classList.remove('show');
+            closeSidebar();
+        });
+
+        // UX Improvement: Close sidebar when a link inside is clicked
+        const sidebarLinks = mobileSidebar.querySelectorAll('a');
+        sidebarLinks.forEach(link => {
+            link.addEventListener('click', closeSidebar);
         });
     }
 

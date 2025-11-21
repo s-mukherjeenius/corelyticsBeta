@@ -50,7 +50,7 @@ def admin_dashboard():
         conn = get_db_connection()
         cursor = conn.cursor(dictionary=True)
 
-        # 1. Total Registered Users
+        # 1. Total Registered Users (Excluding Admins)
         cursor.execute("SELECT COUNT(*) as count FROM users WHERE role != 'admin'")
         stats["total_users"] = cursor.fetchone()['count']
 
@@ -61,23 +61,24 @@ def admin_dashboard():
         """)
         stats["active_today"] = cursor.fetchone()['count']
 
-        # 3. Fetch All Users
+        # 3. Fetch All Users (EXCLUDING ADMINS)
+        # Updated to hide Super Admin from the table
         cursor.execute("""
             SELECT id, full_name, email, role, signup_method, last_active, created_at 
             FROM users 
+            WHERE role != 'admin'
             ORDER BY created_at DESC
         """)
         users = cursor.fetchall()
         
-        # 4. Process "Online" Status (Python Side for Accuracy)
-        # We consider a user online if active in the last 60 seconds (Real-time feel)
+        # 4. Process "Online" Status
         online_count = 0
         now = datetime.now()
         
         for user in users:
             if user['last_active']:
                 time_diff = now - user['last_active']
-                # UPDATED: Window set to 60 seconds
+                # Window set to 60 seconds
                 user['is_online'] = time_diff.total_seconds() < 60 
                 if user['is_online']:
                     online_count += 1
@@ -221,7 +222,6 @@ def edit_user(user_id):
 def api_stats():
     """
     Returns JSON statistics for AJAX polling (Real-time updates).
-    UPDATED: Returns a list of 'online_user_ids' so the frontend can update specific rows.
     """
     conn = None
     cursor = None
@@ -229,7 +229,7 @@ def api_stats():
         conn = get_db_connection()
         cursor = conn.cursor(dictionary=True)
 
-        # 1. Total Users
+        # 1. Total Users (Excluding Admins)
         cursor.execute("SELECT COUNT(*) as count FROM users WHERE role != 'admin'")
         total_users = cursor.fetchone()['count']
 
@@ -241,7 +241,6 @@ def api_stats():
         active_today = cursor.fetchone()['count']
 
         # 3. Get list of Online IDs (Active within last 1 MINUTE)
-        # This tighter window combined with the list allows for precise UI updates
         cursor.execute("""
             SELECT id FROM users 
             WHERE last_active >= NOW() - INTERVAL 1 MINUTE
@@ -253,7 +252,7 @@ def api_stats():
         return jsonify({
             "success": True,
             "online_users_count": len(online_ids),
-            "online_user_ids": online_ids, # Sending List of IDs is the key
+            "online_user_ids": online_ids,
             "total_users": total_users,
             "active_today": active_today
         })

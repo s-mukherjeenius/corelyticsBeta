@@ -1,5 +1,5 @@
 import logging
-from flask import Blueprint, render_template, session, redirect, url_for, flash, request
+from flask import Blueprint, render_template, session, redirect, url_for, flash, request, jsonify
 from functools import wraps
 import mysql.connector
 from datetime import datetime
@@ -216,3 +216,50 @@ def edit_user(user_id):
         if conn: conn.close()
 
     return redirect(url_for('admin.admin_dashboard'))
+
+
+
+@bp.route('/api/stats')
+@admin_required
+def api_stats():
+    """
+    Returns JSON statistics for AJAX polling (Real-time updates).
+    """
+    conn = None
+    cursor = None
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor(dictionary=True)
+
+        # 1. Online Users (Active in last 5 minutes)
+        cursor.execute("""
+            SELECT COUNT(*) as count FROM users 
+            WHERE last_active >= NOW() - INTERVAL 5 MINUTE
+            AND role != 'admin'
+        """)
+        online_users = cursor.fetchone()['count']
+
+        # 2. Total Users
+        cursor.execute("SELECT COUNT(*) as count FROM users WHERE role != 'admin'")
+        total_users = cursor.fetchone()['count']
+
+        # 3. Active Today
+        cursor.execute("""
+            SELECT COUNT(DISTINCT user_id) as count FROM meal_logs 
+            WHERE log_date = CURDATE()
+        """)
+        active_today = cursor.fetchone()['count']
+
+        return jsonify({
+            "success": True,
+            "online_users": online_users,
+            "total_users": total_users,
+            "active_today": active_today
+        })
+
+    except Exception as e:
+        logging.error(f"API Stats Error: {e}")
+        return jsonify({"success": False}), 500
+    finally:
+        if cursor: cursor.close()
+        if conn: conn.close()

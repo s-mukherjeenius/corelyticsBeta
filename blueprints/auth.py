@@ -26,21 +26,26 @@ bp = Blueprint('auth', __name__, template_folder='../templates')
 def index():
     """Renders the combined auth page showing LOGIN by default."""
     if "user_email" in session:
+        # NEW: Redirect Admins to the Admin Dashboard
+        if session.get("role") == 'admin':
+            return redirect(url_for('admin.admin_dashboard'))
+
         if session.get("onboarding_complete", False):
             return redirect(url_for('main.dashboard'))
         else:
             return redirect(url_for('main.onboarding'))
     
-    # UPDATED: Renders the single-page auth layout with 'login' mode
     return render_template('auth.html', google_client_id=GOOGLE_CLIENT_ID, mode='login')
 
 @bp.route('/signup')
 def signup():
     """Renders the combined auth page showing SIGNUP by default."""
     if "user_email" in session:
+        # NEW: Redirect Admins
+        if session.get("role") == 'admin':
+            return redirect(url_for('admin.admin_dashboard'))
         return redirect(url_for('main.dashboard'))
     
-    # UPDATED: Renders the single-page auth layout with 'signup' mode
     return render_template('auth.html', google_client_id=GOOGLE_CLIENT_ID, mode='signup')
 
 @bp.route('/signup', methods=['POST'])
@@ -73,22 +78,24 @@ def handle_signup():
             flash("This email is already registered. Please log in.", 'danger')
             return redirect(url_for('auth.signup'))
 
+        # NEW: Explicitly set role to 'user'
         cursor.execute(
-            "INSERT INTO users (full_name, email, password, signup_method, onboarding_complete) VALUES (%s, %s, %s, %s, %s)",
+            "INSERT INTO users (full_name, email, password, signup_method, onboarding_complete, role) VALUES (%s, %s, %s, %s, %s, 'user')",
             (full_name, email, hashed_password, 'manual', False)
         )
         conn.commit()
 
         new_user_id = cursor.lastrowid
 
-        # Set session variables for the newly signed up user
+        # Set session variables
         session["user_email"] = email
         session["full_name"] = full_name
         session["profile_picture"] = None
         session["onboarding_complete"] = False
         session["user_id"] = new_user_id
+        session["role"] = "user" # NEW: Store role in session
         
-        logging.info(f"New user signed up and session set: {email} (ID: {new_user_id})")
+        logging.info(f"New user signed up: {email} (ID: {new_user_id}, Role: user)")
 
         flash('Account created successfully! Please complete your profile.', 'success')
         return redirect(url_for('main.onboarding'))
@@ -122,6 +129,7 @@ def handle_login():
         conn = get_db_connection()
         cursor = conn.cursor(dictionary=True)
 
+        # NEW: Select 'role' from DB
         cursor.execute("SELECT * FROM users WHERE email = %s", (email,))
         user = cursor.fetchone()
 
@@ -131,9 +139,19 @@ def handle_login():
             session["profile_picture"] = user['profile_picture_url']
             session["onboarding_complete"] = bool(user['onboarding_complete'])
             session["user_id"] = user['id'] 
-
-            logging.info(f"User {email} logged in successfully.")
             
+            # NEW: Handle Role
+            role = user.get('role', 'user')
+            session["role"] = role
+
+            logging.info(f"User {email} logged in. Role: {role}")
+            
+            # NEW: Admin Redirection Logic
+            if role == 'admin':
+                flash('Welcome back, Administrator.', 'success')
+                return redirect(url_for('admin.admin_dashboard'))
+
+            # Standard User Redirection
             if session.get("onboarding_complete", False):
                 flash('Logged in successfully!', 'success')
                 return redirect(url_for('main.dashboard'))
@@ -190,17 +208,19 @@ def google_signup():
         conn = get_db_connection()
         cursor = conn.cursor(dictionary=True)
 
+        # NEW: Fetch role as well
         cursor.execute("SELECT * FROM users WHERE email = %s", (email,))
         user = cursor.fetchone()
 
         onboarding_status = False
         user_id = None
         final_profile_pic_url = google_picture_url 
+        user_role = 'user' # Default for new users
 
         if not user:
-            # New user: Insert into database with Google picture
+            # New user: Insert into database with role 'user'
             cursor.execute(
-                "INSERT INTO users (full_name, email, signup_method, onboarding_complete, profile_picture_url) VALUES (%s, %s, %s, %s, %s)",
+                "INSERT INTO users (full_name, email, signup_method, onboarding_complete, profile_picture_url, role) VALUES (%s, %s, %s, %s, %s, 'user')",
                 (full_name, email, 'google', False, google_picture_url)
             )
             conn.commit()
@@ -210,26 +230,19 @@ def google_signup():
             user_id = user['id']
             onboarding_status = bool(user.get('onboarding_complete', False))
             current_db_pic = user.get('profile_picture_url')
-            
-            # --- FIX: Smart Picture Update Logic ---
-            # If the user has a CUSTOM picture (stored in static/uploads), PRESERVE IT.
-            # If the user has an old Google picture (or no picture), UPDATE IT with the new one from Google.
+            user_role = user.get('role', 'user') # Fetch existing role
             
             is_custom_picture = current_db_pic and "static/uploads" in current_db_pic
 
             if is_custom_picture:
-                # Keep the custom uploaded picture
                 final_profile_pic_url = current_db_pic
-                logging.info(f"User {email} has a custom profile picture. Preserving it.")
             else:
-                # It's either None, or an old Google URL. Update it to the latest Google URL.
                 cursor.execute(
                     "UPDATE users SET profile_picture_url = %s WHERE email = %s",
                     (google_picture_url, email)
                 )
                 conn.commit()
                 final_profile_pic_url = google_picture_url
-                logging.info(f"Updated/Refreshed profile picture for {email} from Google.")
 
         # Set all session variables
         session["user_email"] = email
@@ -237,8 +250,9 @@ def google_signup():
         session["profile_picture"] = final_profile_pic_url
         session["onboarding_complete"] = onboarding_status
         session["user_id"] = user_id 
+        session["role"] = user_role # NEW: Store role in session
         
-        logging.info(f"Session set for Google user: {email}. Onboarding complete: {onboarding_status}")
+        logging.info(f"Session set for Google user: {email}. Role: {user_role}")
 
         return jsonify({
             "success": True, 

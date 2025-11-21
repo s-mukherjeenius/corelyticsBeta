@@ -1,6 +1,6 @@
 import os
 import logging
-from flask import Flask
+from flask import Flask, session
 from dotenv import load_dotenv
 
 # --- 1. Load Environment Variables ---
@@ -10,9 +10,11 @@ load_dotenv()
 # --- 2. Import Blueprints and Initializers ---
 # Import these *after* load_dotenv()
 from blueprints import auth, main, api
+# NEW: Import the Admin Blueprint
+from blueprints import admin 
 import gemini_client
-# Import the close_db function to register it with the app
-from db import close_db
+# Import the database functions
+from db import close_db, get_db_connection
 
 # --- 3. Configure Logging ---
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -30,13 +32,31 @@ if not gemini_client.initialize_gemini_model():
 app.register_blueprint(auth.bp)
 app.register_blueprint(main.bp)
 app.register_blueprint(api.bp)
+app.register_blueprint(admin.bp) # NEW: Register Admin Blueprint
 
 # --- 7. Register Teardown Context ---
 # This ensures the DB connection is closed automatically after every request
-# regardless of whether the request succeeded or failed.
 app.teardown_appcontext(close_db)
 
-# --- Add this function to app.py ---
+# --- 8. Middleware: Track Online Users & Security Headers ---
+
+@app.before_request
+def update_last_active():
+    """
+    Updates the 'last_active' timestamp for the logged-in user.
+    This allows the Admin Dashboard to count 'Online Users'.
+    """
+    if "user_id" in session:
+        # We only update if the user is logged in
+        try:
+            conn = get_db_connection()
+            cursor = conn.cursor()
+            # Update last_active to NOW()
+            cursor.execute("UPDATE users SET last_active = NOW() WHERE id = %s", (session["user_id"],))
+            conn.commit()
+        except Exception as e:
+            # Don't crash the app if tracking fails, just log it
+            logging.error(f"Failed to update last_active: {e}")
 
 @app.after_request
 def add_security_headers(response):
@@ -52,8 +72,7 @@ def add_security_headers(response):
         response.headers["Expires"] = "0"
     return response
 
-
-# --- 8. Run the Application ---
+# --- 9. Run the Application ---
 if __name__ == '__main__':
     # Keep debug=True for local, but never for production
     # Port 3000 is fine for local, Render handles its own port automatically

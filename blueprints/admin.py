@@ -221,7 +221,7 @@ def edit_user(user_id):
 @admin_required
 def api_stats():
     """
-    Returns JSON statistics for AJAX polling (Real-time updates).
+    Returns Real-time stats AND the full user list for dynamic table updates.
     """
     conn = None
     cursor = None
@@ -229,32 +229,38 @@ def api_stats():
         conn = get_db_connection()
         cursor = conn.cursor(dictionary=True)
 
-        # 1. Total Users (Excluding Admins)
+        # 1. Stats
         cursor.execute("SELECT COUNT(*) as count FROM users WHERE role != 'admin'")
         total_users = cursor.fetchone()['count']
 
-        # 2. Active Today
-        cursor.execute("""
-            SELECT COUNT(DISTINCT user_id) as count FROM meal_logs 
-            WHERE log_date = CURDATE()
-        """)
+        cursor.execute("SELECT COUNT(DISTINCT user_id) as count FROM meal_logs WHERE log_date = CURDATE()")
         active_today = cursor.fetchone()['count']
 
-        # 3. Get list of Online IDs (Active within last 1 MINUTE)
+        # 2. Online IDs (1 min window)
+        cursor.execute("SELECT id FROM users WHERE last_active >= NOW() - INTERVAL 1 MINUTE AND role != 'admin'")
+        online_ids = [row['id'] for row in cursor.fetchall()]
+
+        # 3. Fetch Recent Users (Limit to last 50 for performance, or all if manageable)
+        # We fetch ALL users (excluding admin) to rebuild the table dynamically
         cursor.execute("""
-            SELECT id FROM users 
-            WHERE last_active >= NOW() - INTERVAL 1 MINUTE
-            AND role != 'admin'
+            SELECT id, full_name, email, role, created_at 
+            FROM users 
+            WHERE role != 'admin' 
+            ORDER BY created_at DESC
         """)
-        online_results = cursor.fetchall()
-        online_ids = [row['id'] for row in online_results]
+        users_list = cursor.fetchall()
+
+        # Convert datetime objects to string for JSON
+        for user in users_list:
+            user['created_at'] = user['created_at'].strftime('%Y-%m-%d')
 
         return jsonify({
             "success": True,
             "online_users_count": len(online_ids),
             "online_user_ids": online_ids,
             "total_users": total_users,
-            "active_today": active_today
+            "active_today": active_today,
+            "users_list": users_list  # Sending the actual rows now
         })
 
     except Exception as e:

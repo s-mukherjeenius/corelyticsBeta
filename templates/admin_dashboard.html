@@ -309,59 +309,90 @@
     
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            // Auto-dismiss flash messages
+            // 1. Auto-dismiss flash messages
             const alerts = document.querySelectorAll('.alert');
             alerts.forEach(function(alert) {
                 setTimeout(function() {
-                    alert.style.transition = "opacity 0.5s ease";
-                    alert.style.opacity = "0";
+                    alert.style.transition = "opacity 0.5s ease"; alert.style.opacity = "0";
                     setTimeout(function() { alert.remove(); }, 500);
                 }, 4000);
             });
 
-            // Real-time Stats Polling (Every 4 seconds)
+            // 2. Real-time Stats & Table Polling
             function fetchStats() {
                 fetch('/admin/api/stats')
                     .then(response => response.json())
                     .then(data => {
                         if (data.success) {
-                            // 1. Update Top Cards (Simple Text Replacement)
-                            if(document.getElementById('stat-online-users'))
-                                document.getElementById('stat-online-users').innerText = data.online_users_count;
-                            
-                            if(document.getElementById('stat-total-users'))
-                                document.getElementById('stat-total-users').innerText = data.total_users;
-                            
-                            if(document.getElementById('stat-active-today'))
-                                document.getElementById('stat-active-today').innerText = data.active_today;
+                            // --- A. Update Top Cards ---
+                            if(document.getElementById('stat-online-users')) document.getElementById('stat-online-users').innerText = data.online_users_count;
+                            if(document.getElementById('stat-total-users')) document.getElementById('stat-total-users').innerText = data.total_users;
+                            if(document.getElementById('stat-active-today')) document.getElementById('stat-active-today').innerText = data.active_today;
 
-                            // 2. Update Individual Status Tags
-                            // We convert the list of online IDs into a Set for fast lookup
+                            // --- B. Rebuild Table Rows ---
+                            const tableBody = document.getElementById('user-table-body');
                             const onlineIds = new Set(data.online_user_ids);
                             
-                            // Find all rows that have a user ID
-                            const rows = document.querySelectorAll('tr[data-user-id]');
+                            // We build the HTML string for all rows
+                            let rowsHtml = '';
+                            
+                            data.users_list.forEach(user => {
+                                const isOnline = onlineIds.has(user.id);
+                                const statusHtml = isOnline 
+                                    ? `<span class="text-green-600 small fw-bold bg-green-50 px-2 py-1 rounded"><span class="status-dot online"></span> Online</span>`
+                                    : `<span class="text-gray-400 small"><span class="status-dot offline"></span> Offline</span>`;
 
-                            rows.forEach(row => {
-                                const userId = parseInt(row.getAttribute('data-user-id'));
-                                const statusContainer = document.getElementById(`status-container-${userId}`);
-                                
-                                if (statusContainer) {
-                                    if (onlineIds.has(userId)) {
-                                        // User is in the online list -> Show Green Badge
-                                        statusContainer.innerHTML = '<span class="text-green-600 small fw-bold bg-green-50 px-2 py-1 rounded"><span class="status-dot online"></span> Online</span>';
-                                    } else {
-                                        // User is NOT in the online list -> Show Gray Badge
-                                        statusContainer.innerHTML = '<span class="text-gray-400 small"><span class="status-dot offline"></span> Offline</span>';
-                                    }
-                                }
+                                // Row Template
+                                rowsHtml += `
+                                <tr data-user-id="${user.id}">
+                                    <td class="fw-bold text-gray-400">#${user.id}</td>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            <div class="bg-gradient-to-br from-indigo-500 to-purple-500 text-white rounded-circle d-flex align-items-center justify-content-center fw-bold me-3 shadow-sm" style="width: 42px; height: 42px;">
+                                                ${user.full_name.charAt(0).toUpperCase()}
+                                            </div>
+                                            <div>
+                                                <div class="fw-bold text-gray-800">${user.full_name}</div>
+                                                <div class="text-gray-500 small">${user.email}</div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td><span class="role-badge role-${user.role}">${user.role}</span></td>
+                                    <td><span id="status-container-${user.id}">${statusHtml}</span></td>
+                                    <td class="text-gray-500 small fw-medium">${user.created_at}</td>
+                                    <td>
+                                        <a href="/admin/user/${user.id}/chats" class="btn-icon btn-chat me-1" title="View Chats"><i class="fas fa-comments"></i></a>
+                                        <button class="btn-icon btn-edit me-1" data-bs-toggle="modal" data-bs-target="#editModal${user.id}" title="Edit User"><i class="fas fa-edit"></i></button>
+                                        ${user.role !== 'admin' ? `<button class="btn-icon btn-delete" data-bs-toggle="modal" data-bs-target="#deleteModal${user.id}" title="Delete User"><i class="fas fa-trash-alt"></i></button>` : ''}
+                                    </td>
+                                </tr>`;
                             });
+
+                            // Only update DOM if the content has actually changed (prevents flickering)
+                            // For simplicity in this context, we replace innerHTML which is fast enough for <100 rows
+                            if (tableBody.innerHTML.length !== rowsHtml.length) {
+                                tableBody.innerHTML = rowsHtml;
+                            } else {
+                                // Even if rows didn't change count, update statuses individually to avoid full repaint
+                                data.users_list.forEach(user => {
+                                    const isOnline = onlineIds.has(user.id);
+                                    const container = document.getElementById(`status-container-${user.id}`);
+                                    if (container) {
+                                        const currentStatus = isOnline ? 'Online' : 'Offline';
+                                        if (!container.innerText.includes(currentStatus)) {
+                                            container.innerHTML = isOnline 
+                                            ? `<span class="text-green-600 small fw-bold bg-green-50 px-2 py-1 rounded"><span class="status-dot online"></span> Online</span>`
+                                            : `<span class="text-gray-400 small"><span class="status-dot offline"></span> Offline</span>`;
+                                        }
+                                    }
+                                });
+                            }
                         }
                     })
                     .catch(err => console.error('Error polling stats:', err));
             }
 
-            // Start Polling Loop
+            // Poll every 4 seconds
             setInterval(fetchStats, 4000);
         });
     </script>

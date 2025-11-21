@@ -85,6 +85,7 @@
         .user-table tr:last-child td { border-bottom: none; }
         .user-table tr:hover td { background-color: #fafafa; }
         
+        /* Status Dots */
         .status-dot {
             height: 8px; width: 8px; border-radius: 50%; display: inline-block; margin-right: 6px;
         }
@@ -196,9 +197,9 @@
                         <th>Actions</th>
                     </tr>
                 </thead>
-                <tbody>
+                <tbody id="user-table-body">
                     {% for user in stats.users_list %}
-                    <tr>
+                    <tr data-user-id="{{ user.id }}">
                         <td class="fw-bold text-gray-400">#{{ user.id }}</td>
                         <td>
                             <div class="d-flex align-items-center">
@@ -213,14 +214,16 @@
                         </td>
                         <td><span class="role-badge role-{{ user.role }}">{{ user.role }}</span></td>
                         <td>
-                            {% if user.is_online %}
-                                <span class="text-green-600 small fw-bold bg-green-50 px-2 py-1 rounded"><span class="status-dot online"></span> Online</span>
-                            {% else %}
-                                <span class="text-gray-400 small"><span class="status-dot offline"></span> Offline</span>
-                                {% if user.last_active %}
-                                    <div class="text-gray-400" style="font-size: 0.7rem; margin-top: 2px;">{{ user.last_active.strftime('%b %d, %H:%M') }}</div>
+                            <span id="status-container-{{ user.id }}">
+                                {% if user.is_online %}
+                                    <span class="text-green-600 small fw-bold bg-green-50 px-2 py-1 rounded"><span class="status-dot online"></span> Online</span>
+                                {% else %}
+                                    <span class="text-gray-400 small"><span class="status-dot offline"></span> Offline</span>
+                                    {% if user.last_active %}
+                                        <div class="text-gray-400" style="font-size: 0.7rem; margin-top: 2px;">{{ user.last_active.strftime('%b %d, %H:%M') }}</div>
+                                    {% endif %}
                                 {% endif %}
-                            {% endif %}
+                            </span>
                         </td>
                         <td class="text-gray-500 small fw-medium">{{ user.created_at.strftime('%Y-%m-%d') }}</td>
                         <td>
@@ -306,7 +309,7 @@
     
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            // 1. Auto-dismiss flash messages
+            // Auto-dismiss flash messages
             const alerts = document.querySelectorAll('.alert');
             alerts.forEach(function(alert) {
                 setTimeout(function() {
@@ -316,29 +319,50 @@
                 }, 4000);
             });
 
-            // 2. Real-time Stats Polling (Every 5 seconds)
+            // Real-time Stats Polling (Every 4 seconds)
             function fetchStats() {
                 fetch('/admin/api/stats')
                     .then(response => response.json())
                     .then(data => {
                         if (data.success) {
-                            // Update the numbers with a smooth animation if possible, 
-                            // or just replace text for simplicity
+                            // 1. Update Top Cards (Simple Text Replacement)
                             if(document.getElementById('stat-online-users'))
-                                document.getElementById('stat-online-users').innerText = data.online_users;
+                                document.getElementById('stat-online-users').innerText = data.online_users_count;
                             
                             if(document.getElementById('stat-total-users'))
                                 document.getElementById('stat-total-users').innerText = data.total_users;
                             
                             if(document.getElementById('stat-active-today'))
                                 document.getElementById('stat-active-today').innerText = data.active_today;
+
+                            // 2. Update Individual Status Tags
+                            // We convert the list of online IDs into a Set for fast lookup
+                            const onlineIds = new Set(data.online_user_ids);
+                            
+                            // Find all rows that have a user ID
+                            const rows = document.querySelectorAll('tr[data-user-id]');
+
+                            rows.forEach(row => {
+                                const userId = parseInt(row.getAttribute('data-user-id'));
+                                const statusContainer = document.getElementById(`status-container-${userId}`);
+                                
+                                if (statusContainer) {
+                                    if (onlineIds.has(userId)) {
+                                        // User is in the online list -> Show Green Badge
+                                        statusContainer.innerHTML = '<span class="text-green-600 small fw-bold bg-green-50 px-2 py-1 rounded"><span class="status-dot online"></span> Online</span>';
+                                    } else {
+                                        // User is NOT in the online list -> Show Gray Badge
+                                        statusContainer.innerHTML = '<span class="text-gray-400 small"><span class="status-dot offline"></span> Offline</span>';
+                                    }
+                                }
+                            });
                         }
                     })
                     .catch(err => console.error('Error polling stats:', err));
             }
 
-            // Run immediately and then every 5 seconds
-            setInterval(fetchStats, 5000);
+            // Start Polling Loop
+            setInterval(fetchStats, 4000);
         });
     </script>
 </body>

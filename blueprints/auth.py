@@ -26,7 +26,6 @@ bp = Blueprint('auth', __name__, template_folder='../templates')
 def index():
     """Renders the combined auth page showing LOGIN by default."""
     if "user_email" in session:
-        # NEW: Redirect Admins to the Admin Dashboard
         if session.get("role") == 'admin':
             return redirect(url_for('admin.admin_dashboard'))
 
@@ -41,7 +40,6 @@ def index():
 def signup():
     """Renders the combined auth page showing SIGNUP by default."""
     if "user_email" in session:
-        # NEW: Redirect Admins
         if session.get("role") == 'admin':
             return redirect(url_for('admin.admin_dashboard'))
         return redirect(url_for('main.dashboard'))
@@ -93,7 +91,7 @@ def handle_signup():
         session["profile_picture"] = None
         session["onboarding_complete"] = False
         session["user_id"] = new_user_id
-        session["role"] = "user" # NEW: Store role in session
+        session["role"] = "user" 
         
         logging.info(f"New user signed up: {email} (ID: {new_user_id}, Role: user)")
 
@@ -129,7 +127,6 @@ def handle_login():
         conn = get_db_connection()
         cursor = conn.cursor(dictionary=True)
 
-        # NEW: Select 'role' from DB
         cursor.execute("SELECT * FROM users WHERE email = %s", (email,))
         user = cursor.fetchone()
 
@@ -140,13 +137,17 @@ def handle_login():
             session["onboarding_complete"] = bool(user['onboarding_complete'])
             session["user_id"] = user['id'] 
             
-            # NEW: Handle Role
             role = user.get('role', 'user')
             session["role"] = role
 
+            # --- UPDATED: Force 'Online' Status Immediately ---
+            cursor.execute("UPDATE users SET last_active = NOW() WHERE id = %s", (user['id'],))
+            conn.commit()
+            # --------------------------------------------------
+
             logging.info(f"User {email} logged in. Role: {role}")
             
-            # NEW: Admin Redirection Logic
+            # Admin Redirection Logic
             if role == 'admin':
                 flash('Welcome back, Administrator.', 'success')
                 return redirect(url_for('admin.admin_dashboard'))
@@ -208,19 +209,18 @@ def google_signup():
         conn = get_db_connection()
         cursor = conn.cursor(dictionary=True)
 
-        # NEW: Fetch role as well
         cursor.execute("SELECT * FROM users WHERE email = %s", (email,))
         user = cursor.fetchone()
 
         onboarding_status = False
         user_id = None
         final_profile_pic_url = google_picture_url 
-        user_role = 'user' # Default for new users
+        user_role = 'user'
 
         if not user:
-            # New user: Insert into database with role 'user'
+            # New user: Insert with last_active = NOW()
             cursor.execute(
-                "INSERT INTO users (full_name, email, signup_method, onboarding_complete, profile_picture_url, role) VALUES (%s, %s, %s, %s, %s, 'user')",
+                "INSERT INTO users (full_name, email, signup_method, onboarding_complete, profile_picture_url, role, last_active) VALUES (%s, %s, %s, %s, %s, 'user', NOW())",
                 (full_name, email, 'google', False, google_picture_url)
             )
             conn.commit()
@@ -229,9 +229,14 @@ def google_signup():
         else:
             user_id = user['id']
             onboarding_status = bool(user.get('onboarding_complete', False))
-            current_db_pic = user.get('profile_picture_url')
-            user_role = user.get('role', 'user') # Fetch existing role
+            user_role = user.get('role', 'user')
             
+            # --- UPDATED: Update last_active immediately ---
+            cursor.execute("UPDATE users SET last_active = NOW() WHERE id = %s", (user_id,))
+            conn.commit()
+            # -----------------------------------------------
+
+            current_db_pic = user.get('profile_picture_url')
             is_custom_picture = current_db_pic and "static/uploads" in current_db_pic
 
             if is_custom_picture:
@@ -250,7 +255,7 @@ def google_signup():
         session["profile_picture"] = final_profile_pic_url
         session["onboarding_complete"] = onboarding_status
         session["user_id"] = user_id 
-        session["role"] = user_role # NEW: Store role in session
+        session["role"] = user_role
         
         logging.info(f"Session set for Google user: {email}. Role: {user_role}")
 
@@ -276,7 +281,23 @@ def google_signup():
 
 @bp.route('/logout')
 def logout():
-    """Logs out the user by clearing the session."""
+    """Logs out the user AND updates DB status to Offline immediately."""
+    user_id = session.get("user_id")
+    if user_id:
+        conn = None
+        cursor = None
+        try:
+            # --- UPDATED: Force 'Offline' Status (NULL) ---
+            conn = get_db_connection()
+            cursor = conn.cursor()
+            cursor.execute("UPDATE users SET last_active = NULL WHERE id = %s", (user_id,))
+            conn.commit()
+        except Exception as e:
+            logging.error(f"Error updating logout status for user {user_id}: {e}")
+        finally:
+            if cursor: cursor.close()
+            if conn: conn.close()
+
     logging.info(f"User {session.get('user_email')} logging out. SESSION CLEARED.")
     session.clear()
     flash('You have been logged out.', 'info')

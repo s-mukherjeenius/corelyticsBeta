@@ -35,6 +35,7 @@ def admin_required(f):
 def admin_dashboard():
     """
     Renders the Super Admin Dashboard with high-level statistics.
+    Calculates initial 'Online' status based on a 1-minute window.
     """
     conn = None
     cursor = None
@@ -69,16 +70,15 @@ def admin_dashboard():
         users = cursor.fetchall()
         
         # 4. Process "Online" Status (Python Side for Accuracy)
-        # We consider a user online if last_active was within 5 minutes (300 seconds)
+        # We consider a user online if active in the last 60 seconds (Real-time feel)
         online_count = 0
         now = datetime.now()
         
         for user in users:
             if user['last_active']:
-                # Calculate time difference
                 time_diff = now - user['last_active']
-                # user['is_online'] will be True if active < 5 mins ago
-                user['is_online'] = time_diff.total_seconds() < 300
+                # UPDATED: Window set to 60 seconds
+                user['is_online'] = time_diff.total_seconds() < 60 
                 if user['is_online']:
                     online_count += 1
             else:
@@ -128,8 +128,7 @@ def view_user_chats(user_id):
         """, (user_id,))
         conversations = cursor.fetchall()
         
-        # 3. Get All Chat Logs (Grouped by Conversation manually in template)
-        # We fetch ALL logs for this user to display them easily
+        # 3. Get All Chat Logs
         cursor.execute("""
             SELECT conversation_id, role, message, created_at 
             FROM chat_logs 
@@ -217,13 +216,12 @@ def edit_user(user_id):
 
     return redirect(url_for('admin.admin_dashboard'))
 
-
-
 @bp.route('/api/stats')
 @admin_required
 def api_stats():
     """
     Returns JSON statistics for AJAX polling (Real-time updates).
+    UPDATED: Returns a list of 'online_user_ids' so the frontend can update specific rows.
     """
     conn = None
     cursor = None
@@ -231,28 +229,31 @@ def api_stats():
         conn = get_db_connection()
         cursor = conn.cursor(dictionary=True)
 
-        # 1. Online Users (Active in last 5 minutes)
-        cursor.execute("""
-            SELECT COUNT(*) as count FROM users 
-            WHERE last_active >= NOW() - INTERVAL 5 MINUTE
-            AND role != 'admin'
-        """)
-        online_users = cursor.fetchone()['count']
-
-        # 2. Total Users
+        # 1. Total Users
         cursor.execute("SELECT COUNT(*) as count FROM users WHERE role != 'admin'")
         total_users = cursor.fetchone()['count']
 
-        # 3. Active Today
+        # 2. Active Today
         cursor.execute("""
             SELECT COUNT(DISTINCT user_id) as count FROM meal_logs 
             WHERE log_date = CURDATE()
         """)
         active_today = cursor.fetchone()['count']
 
+        # 3. Get list of Online IDs (Active within last 1 MINUTE)
+        # This tighter window combined with the list allows for precise UI updates
+        cursor.execute("""
+            SELECT id FROM users 
+            WHERE last_active >= NOW() - INTERVAL 1 MINUTE
+            AND role != 'admin'
+        """)
+        online_results = cursor.fetchall()
+        online_ids = [row['id'] for row in online_results]
+
         return jsonify({
             "success": True,
-            "online_users": online_users,
+            "online_users_count": len(online_ids),
+            "online_user_ids": online_ids, # Sending List of IDs is the key
             "total_users": total_users,
             "active_today": active_today
         })
